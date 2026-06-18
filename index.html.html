@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2026 북중미 월드컵 OX퀴즈</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pretendard/1.3.9/static/pretendard.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+  :root{
+    --c-bg:#F6F7F3;
+    --c-card:#FFFFFF;
+    --c-ink:#15231C;
+    --c-muted:#6E7C73;
+    --c-line:#E3E8E0;
+    --c-green:#0F6E4F;
+    --c-green-deep:#0A4F39;
+    --c-green-soft:#E4F1EA;
+    --c-gold:#D9A636;
+    --c-gold-soft:#FBF1DC;
+    --c-red:#D9473D;
+    --c-red-soft:#FBEAE8;
+    --radius-lg:20px;
+    --radius-md:14px;
+    --shadow:0 10px 30px rgba(15,35,25,0.08);
+  }
+  *{box-sizing:border-box;}
+  html{
+    font-size:clamp(15px, 0.9vw + 0.85vh, 21px);
+    -webkit-text-size-adjust:100%;
+  }
+  body{
+    margin:0;
+    min-height:100vh;
+    background:var(--c-bg);
+    color:var(--c-ink);
+    font-family:'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+    display:flex;
+    justify-content:center;
+    line-height:1.55;
+  }
+  button, input{font-family:inherit;}
+  button{cursor:pointer;}
+  :focus-visible{outline:3px solid var(--c-gold); outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{transition-duration:0.01ms !important;}
+  }
+
+  #app{
+    width:100%;
+    max-width:30rem;
+    min-height:100vh;
+    padding:1.5rem 1.25rem 2.5rem;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .eyebrow{
+    font-size:0.72rem;
+    font-weight:700;
+    letter-spacing:0.12em;
+    color:var(--c-green);
+    text-transform:uppercase;
+    margin:0 0 0.4rem;
+  }
+  h1{font-size:1.6rem; font-weight:800; margin:0 0 0.3rem; line-height:1.3;}
+  h2{font-size:1.25rem; font-weight:800; margin:0 0 0.5rem;}
+  p.lead{color:var(--c-muted); font-size:0.92rem; margin:0 0 1.5rem;}
+
+  .card{
+    background:var(--c-card);
+    border:1px solid var(--c-line);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+    padding:1.4rem;
+    margin-bottom:1rem;
+  }
+
+  .btn{
+    display:block;
+    width:100%;
+    border:none;
+    border-radius:var(--radius-md);
+    padding:0.95rem 1rem;
+    font-size:1rem;
+    font-weight:700;
+    text-align:center;
+    transition:transform .12s ease, opacity .12s ease;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--c-green); color:#fff;}
+  .btn-primary:disabled{background:#A9B7AE; cursor:not-allowed;}
+  .btn-secondary{background:var(--c-green-soft); color:var(--c-green-deep);}
+  .btn-ghost{background:transparent; color:var(--c-muted); border:1px solid var(--c-line);}
+  .btn-gold{background:var(--c-gold); color:#3a2c08;}
+  .stack{display:flex; flex-direction:column; gap:0.6rem;}
+  .row-2{display:grid; grid-template-columns:1fr 1fr; gap:0.6rem;}
+
+  .field{margin-bottom:0.9rem;}
+  .field label{display:block; font-size:0.82rem; font-weight:700; color:var(--c-muted); margin-bottom:0.35rem;}
+  .field input{
+    width:100%;
+    padding:0.8rem 0.9rem;
+    font-size:1rem;
+    border:1.5px solid var(--c-line);
+    border-radius:var(--radius-md);
+    background:#fdfdfb;
+    color:var(--c-ink);
+  }
+  .field input:focus{border-color:var(--c-green); outline:none;}
+
+  .count-grid{display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-bottom:1.2rem;}
+  .count-btn{
+    border:1.5px solid var(--c-line);
+    background:#fff;
+    border-radius:var(--radius-md);
+    padding:0.9rem 0.5rem;
+    text-align:center;
+    font-weight:800;
+    font-size:1.05rem;
+    color:var(--c-ink);
+  }
+  .count-btn small{display:block; font-weight:500; font-size:0.68rem; color:var(--c-muted); margin-top:0.15rem;}
+  .count-btn.selected{border-color:var(--c-green); background:var(--c-green-soft); color:var(--c-green-deep);}
+
+  .badge{
+    display:inline-flex; align-items:center; gap:0.3rem;
+    font-size:0.72rem; font-weight:700;
+    background:var(--c-green-soft); color:var(--c-green-deep);
+    padding:0.25rem 0.6rem; border-radius:999px;
+    margin-bottom:0.9rem;
+  }
+  .badge.gold{background:var(--c-gold-soft); color:#5c4308;}
+
+  .room-code{
+    font-size:2.1rem; font-weight:800; letter-spacing:0.08em;
+    text-align:center; color:var(--c-green-deep);
+    margin:0.4rem 0 1rem;
+  }
+  .qr-wrap{
+    background:#fff; border:1.5px dashed var(--c-line);
+    border-radius:var(--radius-md);
+    display:flex; justify-content:center; align-items:center;
+    padding:1rem; margin-bottom:1rem;
+  }
+
+  .plist{list-style:none; margin:0; padding:0; max-height:11rem; overflow-y:auto;}
+  .plist li{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:0.55rem 0; border-bottom:1px solid var(--c-line);
+    font-size:0.88rem;
+  }
+  .plist li:last-child{border-bottom:none;}
+  .plist .pname{font-weight:700;}
+  .plist .pid{color:var(--c-muted); font-size:0.78rem;}
+  .empty-note{color:var(--c-muted); font-size:0.85rem; text-align:center; padding:1rem 0;}
+
+  .qnum{font-size:0.85rem; font-weight:700; color:var(--c-muted); margin-bottom:0.5rem;}
+  .qtext{font-size:1.35rem; font-weight:800; line-height:1.45; margin-bottom:1.4rem;}
+
+  .timer-wrap{display:flex; justify-content:center; margin:0.6rem 0 1.4rem;}
+  .timer-num{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:1.7rem; font-weight:800; color:var(--c-ink);
+  }
+  .timer-box{position:relative; width:6.4rem; height:6.4rem;}
+
+  .ox-row{display:grid; grid-template-columns:1fr 1fr; gap:0.8rem;}
+  .ox-btn{
+    aspect-ratio:1/1;
+    border-radius:50%;
+    border:3px solid var(--c-line);
+    background:#fff;
+    font-size:2.6rem;
+    font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .12s ease;
+  }
+  .ox-btn:active{transform:scale(0.96);}
+  .ox-btn.o{color:var(--c-green); border-color:var(--c-green);}
+  .ox-btn.x{color:var(--c-red); border-color:var(--c-red);}
+  .ox-btn.picked.o{background:var(--c-green); color:#fff;}
+  .ox-btn.picked.x{background:var(--c-red); color:#fff;}
+  .ox-btn:disabled{opacity:0.45;}
+
+  .status-line{
+    text-align:center; font-weight:700; font-size:0.95rem;
+    color:var(--c-muted); margin-top:1rem;
+  }
+
+  .answer-banner{
+    border-radius:var(--radius-md);
+    padding:1.1rem;
+    text-align:center;
+    margin-bottom:1rem;
+  }
+  .answer-banner.o{background:var(--c-green-soft); color:var(--c-green-deep);}
+  .answer-banner.x{background:var(--c-red-soft); color:#7a261f;}
+  .answer-banner .big{font-size:2.2rem; font-weight:800; display:block; margin-bottom:0.2rem;}
+
+  .result-tag{
+    display:inline-block; padding:0.55rem 1rem; border-radius:999px;
+    font-weight:800; font-size:0.95rem; margin-bottom:1rem;
+  }
+  .result-tag.correct{background:var(--c-green-soft); color:var(--c-green-deep);}
+  .result-tag.wrong{background:var(--c-red-soft); color:#7a261f;}
+
+  .exp-box{
+    background:#fbfbf8; border:1px solid var(--c-line);
+    border-radius:var(--radius-md);
+    padding:1rem; font-size:0.92rem; color:#3a4640;
+  }
+
+  .stat-row{display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-bottom:1rem;}
+  .stat-box{
+    background:#fbfbf8; border:1px solid var(--c-line); border-radius:var(--radius-md);
+    text-align:center; padding:0.9rem 0.4rem;
+  }
+  .stat-box .num{font-size:1.5rem; font-weight:800; color:var(--c-green-deep);}
+  .stat-box .lbl{font-size:0.72rem; color:var(--c-muted); margin-top:0.15rem;}
+
+  .footer-note{color:var(--c-muted); font-size:0.74rem; text-align:center; margin-top:auto; padding-top:1.5rem;}
+
+  .center-col{flex:1; display:flex; flex-direction:column; justify-content:center;}
+
+  .ball-icon{display:block; margin:0 auto 1rem;}
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:1.2rem; font-size:0.78rem; color:var(--c-muted); font-weight:700;
+  }
+  .spinner{
+    width:1.4rem; height:1.4rem; border-radius:50%;
+    border:3px solid var(--c-line); border-top-color:var(--c-green);
+    margin:0 auto 1rem; animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .rank-list{list-style:none; margin:0; padding:0;}
+  .rank-list li{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:0.6rem 0.2rem; border-bottom:1px solid var(--c-line); font-size:0.9rem;
+  }
+  .rank-list li:last-child{border-bottom:none;}
+  .rank-list .rnum{font-weight:800; color:var(--c-gold); width:1.6rem;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =========================================================
+   2026 북중미 월드컵 OX퀴즈 — 단일 HTML 플랫폼
+   - Firebase Realtime Database로 관리자/참가자 기기 간 상태 동기화 (사용 전 FIREBASE_CONFIG 필수 입력)
+   - 정답 자동 진행 없음 / 다음 단계는 관리자만 진행
+   ========================================================= */
+
+const TIMER_SECONDS = 10;
+const POLL_MS = 1300;
+const TICK_MS = 120;
+
+const QUESTIONS = [
+  {q:"2026 월드컵은 미국·캐나다·멕시코 3개국이 공동 개최한다.", ans:"O", exp:"사상 최초로 세 나라가 함께 개최하는 월드컵이다."},
+  {q:"이번 대회는 이전과 동일하게 32개국이 본선에 참가한다.", ans:"X", exp:"32개국에서 48개국으로 확대되어, 역대 최초로 48개 팀이 본선에 나선다."},
+  {q:"전체 경기 수는 기존 64경기에서 104경기로 늘어난다.", ans:"O", exp:"48개국 체제 도입으로 경기 수가 약 63% 증가했다."},
+  {q:"본선 조 편성은 8개 조, 조당 4개 팀으로 구성된다.", ans:"X", exp:"이번 대회는 12개 조, 조당 4개 팀으로 편성되며 32강 토너먼트가 새로 생겼다."},
+  {q:"개막전은 2026년 6월 11일 멕시코시티 에스타디오 아스테카에서 열린다.", ans:"O", exp:"멕시코와 남아프리카공화국의 경기로 대회의 막이 오른다."},
+  {q:"결승전은 캐나다 토론토에서 열린다.", ans:"X", exp:"결승전은 7월 19일 미국 뉴저지주 메트라이프 스타디움에서 열린다."},
+  {q:"경기가 열리는 도시는 미국·멕시코·캐나다를 합쳐 총 16곳이다.", ans:"O", exp:"미국 11개, 멕시코 3개, 캐나다 2개 도시에서 경기가 진행된다."},
+  {q:"캐나다는 이번 대회로 남자 월드컵을 처음 개최하게 된다.", ans:"O", exp:"미국(1994년 이후 2번째)·멕시코(1970·1986년 이후 3번째)와 달리 캐나다는 첫 개최다."},
+  {q:"한국 대표팀은 이번 대회 B조에 편성되었다.", ans:"X", exp:"한국은 A조에서 개최국 멕시코, 남아프리카공화국, 체코와 맞붙는다."},
+  {q:"한국의 조별리그 3경기는 모두 멕시코 현지에서 열린다.", ans:"O", exp:"1·2차전은 과달라하라, 3차전은 몬테레이에서 펼쳐진다."},
+  {q:"오세아니아 축구 연맹은 이번 대회에서도 본선 진출권을 보장받지 못했다.", ans:"X", exp:"2026년 대회는 6개 대륙 연맹이 모두 본선 진출권을 보장받은 최초의 대회다."},
+  {q:"조별리그를 통과한 32개 팀은 16강에 앞서 별도의 32강전을 치른다.", ans:"O", exp:"48개국 체제에서 새롭게 32강 라운드가 도입되었다."},
+  {q:"이번 대회의 공식 명칭에는 개최국 이름이 모두 들어간다.", ans:"X", exp:"역대 최초로 개최국명을 넣지 않고 연도만 사용한 명칭(FIFA 월드컵 2026)이 채택됐다."},
+  {q:"이번 월드컵에는 마스코트가 단 하나만 존재한다.", ans:"X", exp:"메이플, 자유, 클러치 세 캐릭터로 구성된 마스코트가 공개됐다."},
+  {q:"이번 대회 공식 경기구의 이름은 '트리온다(Trionda)'다.", ans:"O", exp:"3개국 공동개최를 상징하는 이름의 아디다스 공식 경기구다."},
+  {q:"멕시코는 이번 대회로 월드컵 최다 개최국이 된다.", ans:"O", exp:"1970년, 1986년에 이어 세 번째로 개최하며 단독 최다 개최 기록을 세운다."},
+  {q:"개최국 선정은 2022년 카타르 월드컵 직전에 발표되었다.", ans:"X", exp:"개최국은 2018년 6월 13일 러시아 월드컵 개막 전날 모스크바 FIFA 총회에서 확정됐다."},
+  {q:"본선 조 추첨식은 2025년 12월 워싱턴 D.C.에서 열렸다.", ans:"O", exp:"워싱턴 D.C. 케네디 센터에서 2025년 12월 5일 진행됐다."},
+  {q:"3위 결정전은 캐나다 밴쿠버에서 열린다.", ans:"X", exp:"3위 결정전은 미국 마이애미의 하드록 스타디움에서 열린다."},
+  {q:"이번 대회부터는 개최국의 자동 진출권도 대륙별 배당 쿼터에 포함된다.", ans:"O", exp:"과거엔 개최국 몫이 대륙 쿼터와 별도였지만, 이번 대회부터 포함되는 방식으로 바뀌었다."}
+];
+
+/* ---------- FIREBASE 설정 (반드시 본인 값으로 채워야 합니다) ---------- */
+/*
+  아래 FIREBASE_CONFIG 값을 본인의 Firebase 프로젝트 설정으로 바꿔주세요.
+  Firebase 콘솔(console.firebase.google.com) > 프로젝트 설정 > 일반 > 내 앱 > 웹 앱에서
+  "firebaseConfig" 객체를 복사해 그대로 덮어쓰면 됩니다.
+*/
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBcq7D9X5hq0yjtTN5IRS4jchAC3a8rwwg",
+  authDomain: "ox-quiz-2c1dd.firebaseapp.com",
+  databaseURL: "https://ox-quiz-2c1dd-default-rtdb.firebaseio.com",
+  projectId: "ox-quiz-2c1dd",
+  storageBucket: "ox-quiz-2c1dd.firebasestorage.app",
+  messagingSenderId: "331334430731",
+  appId: "1:331334430731:web:beccb637c7d11b5ed9970e"
+};
+
+let FIREBASE_READY = false;
+let fbDb = null;
+try{
+  if(FIREBASE_CONFIG.apiKey && !String(FIREBASE_CONFIG.apiKey).includes("여기에")){
+    firebase.initializeApp(FIREBASE_CONFIG);
+    fbDb = firebase.database();
+    FIREBASE_READY = true;
+  }
+}catch(e){
+  console.error("Firebase 초기화 실패:", e);
+}
+
+/* ---------- storage helpers (Firebase Realtime Database 기반) ---------- */
+let LAST_STORAGE_ERROR = "";
+function describeStorageError(e){
+  return (e && e.message) ? e.message : String(e);
+}
+function toPath(key){
+  // 기존 "room:1234:p:E001" 형태의 키를 "room/1234/p/E001" 경로로 변환
+  return key.replace(/:/g, "/");
+}
+async function storageGet(key){
+  if(!FIREBASE_READY){
+    LAST_STORAGE_ERROR = "Firebase 설정이 비어있습니다. 코드 상단의 FIREBASE_CONFIG를 채워주세요.";
+    return null;
+  }
+  try{
+    const snap = await fbDb.ref(toPath(key)).once("value");
+    return snap.exists() ? snap.val() : null;
+  }catch(e){
+    LAST_STORAGE_ERROR = describeStorageError(e);
+    return null;
+  }
+}
+async function storageSet(key, obj){
+  if(!FIREBASE_READY){
+    LAST_STORAGE_ERROR = "Firebase 설정이 비어있습니다. 코드 상단의 FIREBASE_CONFIG를 채워주세요.";
+    return false;
+  }
+  try{
+    await fbDb.ref(toPath(key)).set(obj);
+    return true;
+  }catch(e){
+    LAST_STORAGE_ERROR = describeStorageError(e);
+    console.error("storage set failed:", e);
+    return false;
+  }
+}
+async function storageList(prefix){
+  if(!FIREBASE_READY) return [];
+  try{
+    const path = toPath(prefix).replace(/\/$/, "");
+    const snap = await fbDb.ref(path).once("value");
+    if(!snap.exists()) return [];
+    const keys = [];
+    snap.forEach(child => { keys.push(path + "/" + child.key); });
+    return keys;
+  }catch(e){ return []; }
+}
+async function storageDelete(key){
+  if(!FIREBASE_READY) return;
+  try{ await fbDb.ref(toPath(key)).remove(); }catch(e){ /* non-fatal */ }
+}
+async function checkStorageHealth(){
+  if(!FIREBASE_READY){
+    LAST_STORAGE_ERROR = "Firebase 설정이 비어있습니다. 코드 상단의 FIREBASE_CONFIG 값을 본인의 Firebase 프로젝트 값으로 채워주세요.";
+    return false;
+  }
+  const testKey = "__healthcheck__" + Date.now();
+  const ok = await storageSet(testKey, {t:Date.now()});
+  if(!ok) return false;
+  const back = await storageGet(testKey);
+  await storageDelete(testKey);
+  return !!back;
+}
+
+/* ---------- utils ---------- */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function makeRoomCode(){
+  return String(Math.floor(1000 + Math.random()*9000));
+}
+function sanitizeId(raw){
+  const s = (raw||"").trim().replace(/[^a-zA-Z0-9가-힣\-_]/g, "");
+  return s.length ? s : ("g" + Math.random().toString(36).slice(2,8));
+}
+function sanitizeRoomCode(raw){
+  const s = (raw||"").trim().replace(/[^a-zA-Z0-9]/g, "");
+  return s;
+}
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+}
+
+/* ---------- app state ---------- */
+const App = {
+  screen: "home",
+  role: null,
+  room: null,
+  setupCount: null,
+  state: null,        // cached room state {phase,totalQuestions,order,currentIndex,phaseStartedAt}
+  me: null,           // {employeeId, name}
+  qIndex: -1,
+  localAnswered: false,
+  localChoice: null,
+  participants: [],
+  pollTimer: null,
+  tickTimer: null,
+  storageOk: null,    // null = checking, true/false = checked
+  baseUrl: "",         // base URL used to build the participant join link / QR
+};
+
+function detectBaseUrl(){
+  try{
+    const origin = location.origin;
+    if(origin && /^https?:\/\//.test(origin)){
+      return origin + location.pathname;
+    }
+  }catch(e){ /* ignore */ }
+  return "";
+}
+function isValidBaseUrl(url){
+  return /^https?:\/\/.+/.test(url || "");
+}
+
+/* ---------- entry / URL params ---------- */
+function initFromUrl(){
+  const params = new URLSearchParams(location.search);
+  const role = params.get("role");
+  const room = params.get("room");
+  if(role === "participant"){
+    App.screen = "join";
+    App.room = room ? room.trim() : "";
+  }
+}
+
+/* ---------- root render dispatcher ---------- */
+const root = document.getElementById("app");
+function render(){
+  let html = "";
+  switch(App.screen){
+    case "home": html = viewHome(); break;
+    case "admin-setup": html = viewAdminSetup(); break;
+    case "admin-lobby": html = viewAdminLobby(); break;
+    case "admin-question": html = viewAdminQuestion(); break;
+    case "admin-answer": html = viewAdminAnswer(); break;
+    case "admin-final": html = viewAdminFinal(); break;
+    case "join": html = viewJoin(); break;
+    case "join-blocked": html = viewJoinBlocked(); break;
+    case "wait": html = viewWait(); break;
+    case "p-question": html = viewPQuestion(); break;
+    case "p-answer": html = viewPAnswer(); break;
+    case "p-final": html = viewPFinal(); break;
+    default: html = viewHome();
+  }
+  root.innerHTML = html;
+  afterRender();
+}
+
+/* ================= HOME ================= */
+function storageWarningBanner(){
+  if(App.storageOk === false){
+    return `
+    <div class="card" style="border-color:var(--c-red); background:var(--c-red-soft);">
+      <p style="font-weight:800; color:#7a261f; margin:0 0 0.3rem;">⚠️ 데이터베이스에 연결할 수 없습니다</p>
+      <p style="font-size:0.85rem; color:#7a261f; margin:0;">${escapeHtml(LAST_STORAGE_ERROR || "")}<br>코드 상단의 FIREBASE_CONFIG 값을 본인의 Firebase 프로젝트 값으로 채워주세요.</p>
+    </div>`;
+  }
+  return "";
+}
+function viewHome(){
+  return `
+  <div class="center-col">
+    <svg class="ball-icon" width="56" height="56" viewBox="0 0 56 56" fill="none">
+      <circle cx="28" cy="28" r="25" stroke="#0F6E4F" stroke-width="3"/>
+      <path d="M28 14 L37 21 L33 32 L23 32 L19 21 Z" stroke="#0F6E4F" stroke-width="2.2" fill="none"/>
+    </svg>
+    <p class="eyebrow" style="text-align:center;">2026 FIFA WORLD CUP</p>
+    <h1 style="text-align:center;">북중미 월드컵<br>OX퀴즈</h1>
+    <p class="lead" style="text-align:center;">정답을 맞히면 계속 진행하고,<br>틀리면 그 자리에서 멈춰요.</p>
+    ${storageWarningBanner()}
+    <div class="stack">
+      <button class="btn btn-primary" id="btn-go-admin">관리자로 시작하기</button>
+      <button class="btn btn-secondary" id="btn-go-join">참가자로 입장하기</button>
+    </div>
+    <p class="footer-note">참가자는 보통 QR코드를 스캔해서 자동으로 입장합니다.</p>
+  </div>`;
+}
+
+/* ================= ADMIN: SETUP ================= */
+function viewAdminSetup(){
+  const counts = [5,10,15,20];
+  const optsHtml = counts.map(c => `
+    <button class="count-btn ${App.setupCount===c?'selected':''}" data-count="${c}">
+      ${c}문제 ${c===QUESTIONS.length?'<small>전체</small>':''}
+    </button>`).join("");
+  const canCreate = App.setupCount && App.storageOk !== false;
+  return `
+  <div>
+    <p class="eyebrow">관리자 설정</p>
+    <h2>몇 문제로 진행할까요?</h2>
+    <p class="lead">총 ${QUESTIONS.length}개 문제 중 진행할 문제 수를 선택하세요.</p>
+    ${storageWarningBanner()}
+    <div class="count-grid">${optsHtml}</div>
+    <button class="btn btn-primary" id="btn-create-room" ${canCreate?'':'disabled'}>게임방 만들기</button>
+    <p id="create-error" style="color:var(--c-red); font-size:0.85rem; text-align:center; min-height:1.2rem; margin-top:0.5rem;"></p>
+    <button class="btn btn-ghost" id="btn-back-home" style="margin-top:0.3rem;">처음으로</button>
+  </div>`;
+}
+
+/* ================= ADMIN: LOBBY ================= */
+function joinUrl(){
+  const base = App.baseUrl || detectBaseUrl();
+  const sep = base.includes("?") ? "&" : "?";
+  return `${base}${sep}role=participant&room=${App.room}`;
+}
+function viewAdminLobby(){
+  const linkOk = isValidBaseUrl(App.baseUrl);
+  return `
+  <div>
+    <div class="topbar"><span>관리자 모드</span><span>대기실</span></div>
+    <p class="eyebrow" style="text-align:center;">참가자 입장 대기 중</p>
+    <div class="room-code">${App.room}</div>
+    <div class="qr-wrap"><div id="qrcode"></div></div>
+    ${linkOk ? "" : `
+    <div class="card" style="border-color:var(--c-gold); background:var(--c-gold-soft);">
+      <p style="font-weight:800; color:#5c4308; margin:0 0 0.3rem;">⚠️ 공유 가능한 링크가 아직 없어요</p>
+      <p style="font-size:0.83rem; color:#5c4308; margin:0;">이 화면의 주소가 실제 웹 링크(https://...)가 아니라서 QR이 제대로 동작하지 않을 수 있어요. 이 파일을 깃허브 페이지(GitHub Pages), Netlify 등 외부에 올린 뒤 그 주소로 접속해서 다시 열거나, 아래 칸에 실제 주소를 직접 입력하고 'QR 다시 만들기'를 눌러주세요.</p>
+    </div>`}
+    <div class="field">
+      <label for="in-baseurl">공유 링크 주소 (게시 후 발급된 링크)</label>
+      <input id="in-baseurl" type="text" placeholder="https://claude.ai/public/artifacts/..." value="${escapeHtml(App.baseUrl)}">
+    </div>
+    <div class="row-2" style="margin-bottom:1rem;">
+      <button class="btn btn-secondary" id="btn-regen-qr">QR 다시 만들기</button>
+      <button class="btn btn-ghost" id="btn-copy-link">참가자 링크 복사</button>
+    </div>
+    <div class="card">
+      <h2 style="margin-bottom:0.7rem;">참가자 <span id="p-count">0</span>명</h2>
+      <ul class="plist" id="p-list"><li class="empty-note">아직 입장한 참가자가 없습니다</li></ul>
+    </div>
+    <button class="btn btn-primary" id="btn-start-quiz">퀴즈 시작</button>
+    <p class="footer-note">QR코드를 스캔하면 모바일에서 바로 입장 화면으로 이동합니다.</p>
+  </div>`;
+}
+
+/* ================= ADMIN: QUESTION ================= */
+function viewAdminQuestion(){
+  const idx = App.state.currentIndex;
+  const total = App.state.totalQuestions;
+  const q = QUESTIONS[App.state.order[idx]];
+  return `
+  <div>
+    <div class="topbar"><span>관리자 모드</span><span>방 코드 ${App.room}</span></div>
+    <p class="qnum">문제 ${idx+1} / ${total}</p>
+    <p class="qtext">${escapeHtml(q.q)}</p>
+    <div class="timer-wrap">${timerSvg()}</div>
+    <div class="card" style="text-align:center;">
+      <span id="submit-count" style="font-weight:800; color:var(--c-green-deep);">제출 현황 집계 중...</span>
+    </div>
+    <button class="btn btn-gold" id="btn-reveal-answer">정답 공개</button>
+    <p class="footer-note">참가자 화면에서는 정답 공개 버튼이 보이지 않습니다.</p>
+  </div>`;
+}
+
+/* ================= ADMIN: ANSWER ================= */
+function viewAdminAnswer(){
+  const idx = App.state.currentIndex;
+  const total = App.state.totalQuestions;
+  const isLast = idx + 1 >= total;
+  const q = QUESTIONS[App.state.order[idx]];
+  const ansClass = q.ans === "O" ? "o" : "x";
+  return `
+  <div>
+    <div class="topbar"><span>관리자 모드</span><span>방 코드 ${App.room}</span></div>
+    <p class="qnum">문제 ${idx+1} / ${total} · 정답 공개</p>
+    <div class="answer-banner ${ansClass}">
+      <span class="big">${q.ans}</span>
+      정답입니다
+    </div>
+    <div class="exp-box" style="margin-bottom:1rem;">${escapeHtml(q.exp)}</div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="num" id="stat-alive">-</div><div class="lbl">생존자(실시간)</div></div>
+      <div class="stat-box"><div class="num" id="stat-out">-</div><div class="lbl">탈락자(실시간)</div></div>
+    </div>
+    <button class="btn btn-primary" id="btn-next-step">${isLast ? "최종 결과 보기" : "다음 문제"}</button>
+  </div>`;
+}
+
+/* ================= ADMIN: FINAL ================= */
+function viewAdminFinal(){
+  const survivors = App.participants.filter(p => p.alive);
+  const sorted = App.participants.slice().sort((a,b)=>{
+    if(b.score !== a.score) return b.score - a.score;
+    return a.joinedAt - b.joinedAt;
+  });
+  const rankHtml = sorted.length ? sorted.map((p,i)=>`
+    <li>
+      <span><span class="rnum">${i+1}</span>${escapeHtml(p.name)} <span class="pid">(${escapeHtml(p.employeeId)})</span></span>
+      <span>${p.score}점 ${p.alive?'🏆':''}</span>
+    </li>`).join("") : `<li class="empty-note" style="border-bottom:none;">참가자가 없습니다</li>`;
+  return `
+  <div>
+    <div class="topbar"><span>관리자 모드</span><span>방 코드 ${App.room}</span></div>
+    <p class="eyebrow">최종 결과</p>
+    <h2>최종 생존자 ${survivors.length}명</h2>
+    <div class="card">
+      <ul class="rank-list">${rankHtml}</ul>
+    </div>
+    <button class="btn btn-secondary" id="btn-new-game">새 게임 만들기</button>
+  </div>`;
+}
+
+/* ================= PARTICIPANT: JOIN ================= */
+function viewJoin(){
+  return `
+  <div class="center-col">
+    <p class="eyebrow" style="text-align:center;">참가자 입장</p>
+    <h1 style="text-align:center;">북중미 월드컵 OX퀴즈</h1>
+    <div class="card">
+      <div class="field">
+        <label for="in-room">게임방 코드</label>
+        <input id="in-room" type="text" inputmode="numeric" placeholder="예: 1234" value="${App.room ? escapeHtml(App.room) : ''}">
+      </div>
+      <div class="field">
+        <label for="in-empid">사번</label>
+        <input id="in-empid" type="text" placeholder="사번을 입력하세요">
+      </div>
+      <div class="field">
+        <label for="in-name">이름</label>
+        <input id="in-name" type="text" placeholder="이름을 입력하세요">
+      </div>
+      <p id="join-error" style="color:var(--c-red); font-size:0.85rem; min-height:1.2rem;"></p>
+      <button class="btn btn-primary" id="btn-submit-join">입장하기</button>
+    </div>
+  </div>`;
+}
+
+function viewJoinBlocked(){
+  return `
+  <div class="center-col">
+    <div class="card" style="text-align:center;">
+      <h2>입장할 수 없습니다</h2>
+      <p class="lead" style="margin-bottom:0;">${escapeHtml(App.joinErrorMsg || "이미 시작된 게임이거나 존재하지 않는 게임방입니다.")}</p>
+    </div>
+    <button class="btn btn-ghost" id="btn-back-join">다시 시도</button>
+  </div>`;
+}
+
+/* ================= PARTICIPANT: WAIT ================= */
+function viewWait(){
+  return `
+  <div class="center-col" style="text-align:center;">
+    <div class="spinner"></div>
+    <p class="eyebrow">대기실</p>
+    <h2>${escapeHtml(App.me.name)}님, 입장 완료!</h2>
+    <p class="lead">사번 ${escapeHtml(App.me.employeeId)} · 방 코드 ${App.room}<br>관리자가 퀴즈를 시작하면 자동으로 첫 문제가 표시됩니다.</p>
+  </div>`;
+}
+
+/* ================= PARTICIPANT: QUESTION ================= */
+function viewPQuestion(){
+  const idx = App.qIndex;
+  const total = App.state.totalQuestions;
+  const q = QUESTIONS[App.state.order[idx]];
+  const alive = App.myRecord ? App.myRecord.alive : true;
+
+  if(!alive){
+    return `
+    <div>
+      <p class="qnum">문제 ${idx+1} / ${total}</p>
+      <p class="qtext">${escapeHtml(q.q)}</p>
+      <div class="timer-wrap">${timerSvg()}</div>
+      <div class="card" style="text-align:center;">
+        <p style="font-weight:800; margin:0;">🚫 탈락하셨습니다</p>
+        <p class="lead" style="margin:0.4rem 0 0;">결과를 끝까지 함께 지켜봐 주세요.</p>
+      </div>
+    </div>`;
+  }
+
+  const already = App.localAnswered;
+  const pickedO = already && App.localChoice === "O";
+  const pickedX = already && App.localChoice === "X";
+  return `
+  <div>
+    <p class="qnum">문제 ${idx+1} / ${total}</p>
+    <p class="qtext">${escapeHtml(q.q)}</p>
+    <div class="timer-wrap">${timerSvg()}</div>
+    <div class="ox-row">
+      <button class="ox-btn o ${pickedO?'picked':''}" id="btn-pick-o" ${already?'disabled':''}>O</button>
+      <button class="ox-btn x ${pickedX?'picked':''}" id="btn-pick-x" ${already?'disabled':''}>✕</button>
+    </div>
+    <p class="status-line">${already ? "제출 완료! 정답 발표를 기다려 주세요." : "시간이 끝나도 답변을 제출할 수 있어요."}</p>
+  </div>`;
+}
+
+/* ================= PARTICIPANT: ANSWER ================= */
+function viewPAnswer(){
+  const idx = App.qIndex;
+  const total = App.state.totalQuestions;
+  const q = QUESTIONS[App.state.order[idx]];
+  const ansClass = q.ans === "O" ? "o" : "x";
+  const rec = App.myRecord;
+  const wasCorrect = rec && rec.answers && rec.answers[idx] ? rec.answers[idx].correct : false;
+  const noAnswer = !(rec && rec.answers && rec.answers[idx]);
+
+  let tagHtml;
+  if(noAnswer){
+    tagHtml = `<span class="result-tag wrong">⏱ 답변을 제출하지 않아 탈락했습니다</span>`;
+  } else if(wasCorrect){
+    tagHtml = `<span class="result-tag correct">✅ 정답입니다! 계속 진행합니다</span>`;
+  } else {
+    tagHtml = `<span class="result-tag wrong">❌ 오답입니다. 탈락했습니다</span>`;
+  }
+
+  return `
+  <div>
+    <p class="qnum">문제 ${idx+1} / ${total} · 정답 공개</p>
+    <div class="answer-banner ${ansClass}">
+      <span class="big">${q.ans}</span>정답입니다
+    </div>
+    <div style="text-align:center;">${tagHtml}</div>
+    <div class="exp-box">${escapeHtml(q.exp)}</div>
+    <p class="status-line">관리자가 다음 문제를 준비하고 있어요...</p>
+  </div>`;
+}
+
+/* ================= PARTICIPANT: FINAL ================= */
+function viewPFinal(){
+  const rec = App.myRecord;
+  const alive = rec ? rec.alive : false;
+  return `
+  <div class="center-col" style="text-align:center;">
+    <p class="eyebrow">최종 결과</p>
+    <h1>${alive ? "🏆 최종 생존!" : "수고하셨습니다"}</h1>
+    <p class="lead">${escapeHtml(App.me.name)}님의 점수: <strong>${rec ? rec.score : 0}점</strong></p>
+    <p class="lead">${alive ? "모든 문제를 끝까지 맞히셨어요!" : "끝까지 함께해 주셔서 감사합니다."}</p>
+  </div>`;
+}
+
+/* ================= timer svg ================= */
+function timerSvg(){
+  const r = 42, c = 2*Math.PI*r;
+  return `
+  <div class="timer-box">
+    <svg width="100%" height="100%" viewBox="0 0 102 102">
+      <circle cx="51" cy="51" r="${r}" fill="none" stroke="#E3E8E0" stroke-width="8"/>
+      <circle id="timer-ring" cx="51" cy="51" r="${r}" fill="none" stroke="#0F6E4F" stroke-width="8"
+        stroke-dasharray="${c}" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 51 51)"/>
+    </svg>
+    <div class="timer-num" id="timer-num">${TIMER_SECONDS}</div>
+  </div>`;
+}
+function updateTimerVisual(phaseStartedAt){
+  const ring = document.getElementById("timer-ring");
+  const num = document.getElementById("timer-num");
+  if(!ring || !num) return;
+  const r = 42, c = 2*Math.PI*r;
+  const elapsed = (Date.now() - phaseStartedAt) / 1000;
+  const frac = Math.min(Math.max(elapsed / TIMER_SECONDS, 0), 1);
+  ring.setAttribute("stroke-dashoffset", String(c * frac));
+  const remaining = Math.max(Math.ceil(TIMER_SECONDS - elapsed), 0);
+  num.textContent = remaining;
+  let color = "#0F6E4F";
+  if(frac > 0.66) color = "#D9473D";
+  else if(frac > 0.33) color = "#D9A636";
+  ring.setAttribute("stroke", color);
+}
+
+/* ================= after render: bind events + side effects ================= */
+function afterRender(){
+  switch(App.screen){
+    case "home":
+      document.getElementById("btn-go-admin").onclick = () => { App.screen="admin-setup"; render(); };
+      document.getElementById("btn-go-join").onclick = () => { App.screen="join"; render(); };
+      break;
+
+    case "admin-setup":
+      document.querySelectorAll(".count-btn").forEach(b=>{
+        b.onclick = () => { App.setupCount = Number(b.dataset.count); render(); };
+      });
+      document.getElementById("btn-create-room").onclick = onCreateRoom;
+      document.getElementById("btn-back-home").onclick = () => { App.screen="home"; render(); };
+      break;
+
+    case "admin-lobby":
+      drawQr(joinUrl());
+      document.getElementById("btn-start-quiz").onclick = onStartQuiz;
+      document.getElementById("btn-regen-qr").onclick = () => {
+        const val = document.getElementById("in-baseurl").value.trim();
+        App.baseUrl = val;
+        render();
+      };
+      document.getElementById("btn-copy-link").onclick = async () => {
+        const link = joinUrl();
+        try{
+          await navigator.clipboard.writeText(link);
+          alert("참가자 링크를 복사했습니다:\n" + link);
+        }catch(e){
+          prompt("아래 링크를 복사하세요:", link);
+        }
+      };
+      refreshParticipants().then(updateLobbyList);
+      break;
+
+    case "admin-question":
+      updateTimerVisual(App.state.phaseStartedAt);
+      startTicker(() => updateTimerVisual(App.state.phaseStartedAt));
+      document.getElementById("btn-reveal-answer").onclick = onRevealAnswer;
+      refreshParticipants().then(updateSubmitCount);
+      break;
+
+    case "admin-answer":
+      refreshParticipants().then(updateAliveStats);
+      document.getElementById("btn-next-step").onclick = onNextStep;
+      break;
+
+    case "admin-final":
+      document.getElementById("btn-new-game").onclick = () => {
+        App.room=null; App.state=null; App.participants=[]; App.setupCount=null;
+        App.screen="admin-setup"; render();
+      };
+      break;
+
+    case "join":
+      document.getElementById("btn-submit-join").onclick = onSubmitJoin;
+      break;
+
+    case "join-blocked":
+      document.getElementById("btn-back-join").onclick = () => { App.screen="join"; render(); };
+      break;
+
+    case "wait":
+      // polling handles transition
+      break;
+
+    case "p-question":
+      stopTicker();
+      if(App.myRecord && App.myRecord.alive){
+        updateTimerVisual(App.state.phaseStartedAt);
+        startTicker(() => updateTimerVisual(App.state.phaseStartedAt));
+        document.getElementById("btn-pick-o").onclick = () => onPickAnswer("O");
+        document.getElementById("btn-pick-x").onclick = () => onPickAnswer("X");
+      } else {
+        updateTimerVisual(App.state.phaseStartedAt);
+        startTicker(() => updateTimerVisual(App.state.phaseStartedAt));
+      }
+      break;
+
+    case "p-answer":
+      stopTicker();
+      break;
+
+    case "p-final":
+      stopTicker();
+      break;
+  }
+}
+
+/* ---------- QR ---------- */
+function drawQr(text){
+  const el = document.getElementById("qrcode");
+  if(!el) return;
+  el.innerHTML = "";
+  new QRCode(el, { text, width:176, height:176, colorDark:"#0F6E4F", colorLight:"#ffffff", correctLevel: QRCode.CorrectLevel.H });
+}
+
+/* ---------- ticker (visual countdown only, never blocks input) ---------- */
+function startTicker(fn){
+  stopTicker();
+  App.tickTimer = setInterval(fn, TICK_MS);
+}
+function stopTicker(){
+  if(App.tickTimer){ clearInterval(App.tickTimer); App.tickTimer = null; }
+}
+
+/* ================= ADMIN ACTIONS ================= */
+async function onCreateRoom(){
+  const errEl = document.getElementById("create-error");
+  if(errEl) errEl.textContent = "";
+
+  const room = makeRoomCode();
+  const order = shuffle([...Array(QUESTIONS.length).keys()]).slice(0, App.setupCount);
+  const state = {
+    phase: "lobby",
+    totalQuestions: App.setupCount,
+    order,
+    currentIndex: 0,
+    phaseStartedAt: 0,
+    createdAt: Date.now()
+  };
+  const ok = await storageSet(`room:${room}:state`, state);
+  if(!ok){
+    const msg = "게임방 생성에 실패했습니다: " + (LAST_STORAGE_ERROR || "알 수 없는 오류");
+    if(errEl) errEl.textContent = msg; else alert(msg);
+    return;
+  }
+  App.role = "admin";
+  App.room = room;
+  App.state = state;
+  App.baseUrl = detectBaseUrl();
+  App.screen = "admin-lobby";
+  render();
+}
+
+async function refreshParticipants(){
+  if(!App.room) return [];
+  const keys = await storageList(`room:${App.room}:p:`);
+  const list = [];
+  for(const k of keys){
+    const v = await storageGet(k);
+    if(v) list.push(v);
+  }
+  list.sort((a,b)=>a.joinedAt - b.joinedAt);
+  App.participants = list;
+  return list;
+}
+
+function updateLobbyList(){
+  const countEl = document.getElementById("p-count");
+  const listEl = document.getElementById("p-list");
+  if(!countEl || !listEl) return;
+  countEl.textContent = App.participants.length;
+  listEl.innerHTML = App.participants.length
+    ? App.participants.map(p=>`<li><span class="pname">${escapeHtml(p.name)}</span><span class="pid">${escapeHtml(p.employeeId)}</span></li>`).join("")
+    : `<li class="empty-note">아직 입장한 참가자가 없습니다</li>`;
+}
+
+async function onStartQuiz(){
+  if(App.participants.length === 0){
+    const proceed = confirm("참가자가 아직 없습니다. 그래도 시작할까요?");
+    if(!proceed) return;
+  }
+  App.state.phase = "question";
+  App.state.currentIndex = 0;
+  App.state.phaseStartedAt = Date.now();
+  await storageSet(`room:${App.room}:state`, App.state);
+  App.screen = "admin-question";
+  render();
+}
+
+function updateSubmitCount(){
+  const el = document.getElementById("submit-count");
+  if(!el) return;
+  const idx = App.state.currentIndex;
+  const alive = App.participants.filter(p=>p.alive);
+  const answered = alive.filter(p=>p.answers && p.answers[idx]).length;
+  el.textContent = `제출 ${answered} / ${alive.length}명`;
+}
+
+async function onRevealAnswer(){
+  App.state.phase = "answer";
+  await storageSet(`room:${App.room}:state`, App.state);
+  App.screen = "admin-answer";
+  render();
+}
+
+function updateAliveStats(){
+  const aliveEl = document.getElementById("stat-alive");
+  const outEl = document.getElementById("stat-out");
+  if(!aliveEl || !outEl) return;
+  const alive = App.participants.filter(p=>p.alive).length;
+  const out = App.participants.length - alive;
+  aliveEl.textContent = alive;
+  outEl.textContent = out;
+}
+
+async function onNextStep(){
+  const isLast = App.state.currentIndex + 1 >= App.state.totalQuestions;
+  if(isLast){
+    App.state.phase = "finished";
+    await storageSet(`room:${App.room}:state`, App.state);
+    await refreshParticipants();
+    App.screen = "admin-final";
+    render();
+  } else {
+    App.state.currentIndex += 1;
+    App.state.phase = "question";
+    App.state.phaseStartedAt = Date.now();
+    await storageSet(`room:${App.room}:state`, App.state);
+    App.screen = "admin-question";
+    render();
+  }
+}
+
+/* ================= PARTICIPANT ACTIONS ================= */
+async function onSubmitJoin(){
+  const roomInput = sanitizeRoomCode(document.getElementById("in-room").value);
+  const empRaw = document.getElementById("in-empid").value.trim();
+  const nameRaw = document.getElementById("in-name").value.trim();
+  const errEl = document.getElementById("join-error");
+
+  if(!roomInput || !empRaw || !nameRaw){
+    errEl.textContent = "게임방 코드, 사번, 이름을 모두 입력해주세요.";
+    return;
+  }
+
+  const state = await storageGet(`room:${roomInput}:state`);
+  if(!state){
+    if(!FIREBASE_READY){
+      errEl.textContent = "이 페이지의 데이터베이스 설정이 아직 안 되어 있습니다. 관리자에게 문의해주세요.";
+    } else {
+      errEl.textContent = "존재하지 않는 게임방 코드입니다. 코드를 다시 확인해주세요.";
+    }
+    return;
+  }
+
+  const empId = sanitizeId(empRaw);
+  const existing = await storageGet(`room:${roomInput}:p:${empId}`);
+
+  if(!existing && state.phase !== "lobby"){
+    App.joinErrorMsg = "이미 시작된 게임입니다. 관리자에게 문의해주세요.";
+    App.screen = "join-blocked";
+    render();
+    return;
+  }
+
+  let record = existing;
+  if(!record){
+    record = {
+      employeeId: empRaw,
+      name: nameRaw,
+      joinedAt: Date.now(),
+      alive: true,
+      score: 0,
+      answers: {}
+    };
+    await storageSet(`room:${roomInput}:p:${empId}`, record);
+  }
+
+  App.role = "participant";
+  App.room = roomInput;
+  App.me = { employeeId: empRaw, name: record.name, key: empId };
+  App.state = state;
+  App.myRecord = record;
+
+  if(state.phase === "lobby"){
+    App.screen = "wait";
+  } else if(state.phase === "question"){
+    App.qIndex = state.currentIndex;
+    App.localAnswered = !!(record.answers && record.answers[App.qIndex]);
+    if(App.localAnswered) App.localChoice = record.answers[App.qIndex].choice;
+    App.screen = "p-question";
+  } else if(state.phase === "answer"){
+    App.qIndex = state.currentIndex;
+    App.screen = "p-answer";
+  } else if(state.phase === "finished"){
+    App.screen = "p-final";
+  } else {
+    App.screen = "wait";
+  }
+  render();
+}
+
+async function onPickAnswer(choice){
+  if(App.localAnswered) return;
+  App.localAnswered = true;
+  App.localChoice = choice;
+  const idx = App.qIndex;
+  App.myRecord.answers[idx] = { choice, ts: Date.now() };
+  await storageSet(`room:${App.room}:p:${App.me.key}`, App.myRecord);
+  render();
+}
+
+/* ================= POLLING LOOP (drives sync + transitions) ================= */
+async function pollTick(){
+  if(!App.room) return;
+  const liveScreens = ["admin-lobby","admin-question","admin-answer","wait","p-question","p-answer"];
+  if(!liveScreens.includes(App.screen)) return;
+
+  const remote = await storageGet(`room:${App.room}:state`);
+  if(!remote) return;
+  App.state = remote;
+
+  if(App.role === "admin"){
+    await refreshParticipants();
+    if(App.screen === "admin-lobby") updateLobbyList();
+    if(App.screen === "admin-question") updateSubmitCount();
+    if(App.screen === "admin-answer") updateAliveStats();
+    return;
+  }
+
+  if(App.role === "participant"){
+    await handleParticipantSync(remote);
+  }
+}
+
+async function handleParticipantSync(remote){
+  // refresh my own record (in case future logic needs latest score etc.)
+  const myKey = `room:${App.room}:p:${App.me.key}`;
+
+  if(App.screen === "wait"){
+    if(remote.phase === "question"){
+      App.qIndex = remote.currentIndex;
+      App.myRecord = await storageGet(myKey) || App.myRecord;
+      App.localAnswered = false;
+      App.localChoice = null;
+      App.screen = "p-question";
+      render();
+    } else if(remote.phase === "finished"){
+      App.myRecord = await storageGet(myKey) || App.myRecord;
+      App.screen = "p-final";
+      render();
+    }
+    return;
+  }
+
+  if(App.screen === "p-question"){
+    if(remote.phase === "answer" && remote.currentIndex === App.qIndex){
+      await gradeMyAnswer(remote.currentIndex);
+      App.screen = "p-answer";
+      render();
+    }
+    return;
+  }
+
+  if(App.screen === "p-answer"){
+    if(remote.phase === "question" && remote.currentIndex > App.qIndex){
+      App.qIndex = remote.currentIndex;
+      App.myRecord = await storageGet(myKey) || App.myRecord;
+      App.localAnswered = false;
+      App.localChoice = null;
+      App.screen = "p-question";
+      render();
+    } else if(remote.phase === "finished"){
+      App.myRecord = await storageGet(myKey) || App.myRecord;
+      App.screen = "p-final";
+      render();
+    }
+    return;
+  }
+}
+
+async function gradeMyAnswer(idx){
+  const myKey = `room:${App.room}:p:${App.me.key}`;
+  const fresh = await storageGet(myKey);
+  if(fresh) App.myRecord = fresh;
+
+  // idempotent: only grade once per question index
+  const existingAnswer = App.myRecord.answers && App.myRecord.answers[idx];
+  if(existingAnswer && typeof existingAnswer.correct === "boolean") return;
+
+  const correctAns = QUESTIONS[App.state.order[idx]].ans;
+
+  if(!App.myRecord.answers) App.myRecord.answers = {};
+
+  if(!existingAnswer){
+    App.myRecord.answers[idx] = { choice:null, ts:Date.now(), correct:false };
+    App.myRecord.alive = false;
+  } else {
+    const isCorrect = existingAnswer.choice === correctAns;
+    existingAnswer.correct = isCorrect;
+    if(isCorrect){
+      App.myRecord.score = (App.myRecord.score || 0) + 1;
+      App.myRecord.alive = true;
+    } else {
+      App.myRecord.alive = false;
+    }
+  }
+  await storageSet(myKey, App.myRecord);
+}
+
+/* ================= boot ================= */
+initFromUrl();
+render();
+checkStorageHealth().then(ok => {
+  App.storageOk = ok;
+  if(App.screen === "home" || App.screen === "admin-setup"){
+    render();
+  }
+});
+setInterval(pollTick, POLL_MS);
+</script>
+</body>
+</html>
