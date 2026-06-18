@@ -269,26 +269,26 @@ const POLL_MS = 1300;
 const TICK_MS = 120;
 
 const QUESTIONS = [
+  {q:"한국 축구 국가대표팀의 주장은 손흥민이다.", ans:"O", exp:"손흥민은 2026 북중미 월드컵에서도 대표팀 주장을 맡고 있다."},
   {q:"2026 월드컵은 미국·캐나다·멕시코 3개국이 공동 개최한다.", ans:"O", exp:"사상 최초로 세 나라가 함께 개최하는 월드컵이다."},
+  {q:"한국 대표팀을 이끄는 감독은 클린스만 감독이다.", ans:"X", exp:"현재 한국 대표팀을 이끄는 감독은 홍명보 감독이다."},
   {q:"이번 대회는 이전과 동일하게 32개국이 본선에 참가한다.", ans:"X", exp:"32개국에서 48개국으로 확대되어, 역대 최초로 48개 팀이 본선에 나선다."},
-  {q:"전체 경기 수는 기존 64경기에서 104경기로 늘어난다.", ans:"O", exp:"48개국 체제 도입으로 경기 수가 약 63% 증가했다."},
-  {q:"본선 조 편성은 8개 조, 조당 4개 팀으로 구성된다.", ans:"X", exp:"이번 대회는 12개 조, 조당 4개 팀으로 편성되며 32강 토너먼트가 새로 생겼다."},
-  {q:"개막전은 2026년 6월 11일 멕시코시티 에스타디오 아스테카에서 열린다.", ans:"O", exp:"멕시코와 남아프리카공화국의 경기로 대회의 막이 오른다."},
-  {q:"결승전은 캐나다 토론토에서 열린다.", ans:"X", exp:"결승전은 7월 19일 미국 뉴저지주 메트라이프 스타디움에서 열린다."},
-  {q:"경기가 열리는 도시는 미국·멕시코·캐나다를 합쳐 총 16곳이다.", ans:"O", exp:"미국 11개, 멕시코 3개, 캐나다 2개 도시에서 경기가 진행된다."},
-  {q:"캐나다는 이번 대회로 남자 월드컵을 처음 개최하게 된다.", ans:"O", exp:"미국(1994년 이후 2번째)·멕시코(1970·1986년 이후 3번째)와 달리 캐나다는 첫 개최다."},
   {q:"한국 대표팀은 이번 대회 B조에 편성되었다.", ans:"X", exp:"한국은 A조에서 개최국 멕시코, 남아프리카공화국, 체코와 맞붙는다."},
+  {q:"결승전은 캐나다 토론토에서 열린다.", ans:"X", exp:"결승전은 7월 19일 미국 뉴저지주 메트라이프 스타디움에서 열린다."},
   {q:"한국의 조별리그 3경기는 모두 멕시코 현지에서 열린다.", ans:"O", exp:"1·2차전은 과달라하라, 3차전은 몬테레이에서 펼쳐진다."},
-  {q:"오세아니아 축구 연맹은 이번 대회에서도 본선 진출권을 보장받지 못했다.", ans:"X", exp:"2026년 대회는 6개 대륙 연맹이 모두 본선 진출권을 보장받은 최초의 대회다."},
+  {q:"개막전은 2026년 6월 11일 멕시코시티 에스타디오 아스테카에서 열린다.", ans:"O", exp:"멕시코와 남아프리카공화국의 경기로 대회의 막이 오른다."},
+  {q:"한국은 조별리그 1차전에서 체코에 패배했다.", ans:"X", exp:"한국은 황인범·오현규의 연속 골로 체코를 2-1로 꺾는 역전승을 거뒀다."},
+  {q:"전체 경기 수는 기존 64경기에서 104경기로 늘어난다.", ans:"O", exp:"48개국 체제 도입으로 경기 수가 약 63% 증가했다."},
+  {q:"체코와의 1차전에서 결승골을 넣은 선수는 손흥민이다.", ans:"X", exp:"결승골은 교체로 들어간 오현규가 넣었고, 손흥민은 그 전에 교체되어 나갔다."},
+  {q:"본선 조 편성은 8개 조, 조당 4개 팀으로 구성된다.", ans:"X", exp:"이번 대회는 12개 조, 조당 4개 팀으로 편성되며 32강 토너먼트가 새로 생겼다."},
+  {q:"손흥민은 이번 대회가 개인 통산 네 번째 월드컵 출전이다.", ans:"O", exp:"2014, 2018, 2022 대회에 이어 2026년이 손흥민의 네 번째 월드컵이다."},
+  {q:"이번 대회 공식 경기구의 이름은 '알 릴라(Al Rihla)'이다.", ans:"X", exp:"이번 대회 공식 경기구는 '트리온다(Trionda)'이며, 알 릴라는 2022 카타르 월드컵의 공식구였다."},
+  {q:"손흥민은 이번 대회에서 한 골만 추가하면 한국 선수 월드컵 최다 득점 기록을 단독으로 보유하게 된다.", ans:"O", exp:"안정환·박지성과 함께 3골로 공동 1위인 손흥민은 한 골만 더 넣으면 단독 최다 득점자가 된다."},
   {q:"조별리그를 통과한 32개 팀은 16강에 앞서 별도의 32강전을 치른다.", ans:"O", exp:"48개국 체제에서 새롭게 32강 라운드가 도입되었다."},
+  {q:"김민재의 현재 소속 클럽은 파리 생제르맹이다.", ans:"X", exp:"김민재의 소속팀은 바이에른 뮌헨이며, 파리 생제르맹 소속은 이강인이다."},
   {q:"이번 대회의 공식 명칭에는 개최국 이름이 모두 들어간다.", ans:"X", exp:"역대 최초로 개최국명을 넣지 않고 연도만 사용한 명칭(FIFA 월드컵 2026)이 채택됐다."},
-  {q:"이번 월드컵에는 마스코트가 단 하나만 존재한다.", ans:"X", exp:"메이플, 자유, 클러치 세 캐릭터로 구성된 마스코트가 공개됐다."},
-  {q:"이번 대회 공식 경기구의 이름은 '트리온다(Trionda)'다.", ans:"O", exp:"3개국 공동개최를 상징하는 이름의 아디다스 공식 경기구다."},
-  {q:"멕시코는 이번 대회로 월드컵 최다 개최국이 된다.", ans:"O", exp:"1970년, 1986년에 이어 세 번째로 개최하며 단독 최다 개최 기록을 세운다."},
-  {q:"개최국 선정은 2022년 카타르 월드컵 직전에 발표되었다.", ans:"X", exp:"개최국은 2018년 6월 13일 러시아 월드컵 개막 전날 모스크바 FIFA 총회에서 확정됐다."},
-  {q:"본선 조 추첨식은 2025년 12월 워싱턴 D.C.에서 열렸다.", ans:"O", exp:"워싱턴 D.C. 케네디 센터에서 2025년 12월 5일 진행됐다."},
-  {q:"3위 결정전은 캐나다 밴쿠버에서 열린다.", ans:"X", exp:"3위 결정전은 미국 마이애미의 하드록 스타디움에서 열린다."},
-  {q:"이번 대회부터는 개최국의 자동 진출권도 대륙별 배당 쿼터에 포함된다.", ans:"O", exp:"과거엔 개최국 몫이 대륙 쿼터와 별도였지만, 이번 대회부터 포함되는 방식으로 바뀌었다."}
+  {q:"한국 선수 중 월드컵 최다 출전 기록(16회)을 보유한 인물은 홍명보 감독이다.", ans:"O", exp:"현역 시절 홍명보 감독은 한국 선수 최다 월드컵 출전(16경기) 기록을 보유하고 있다."},
+  {q:"본선 조 추첨식은 2025년 12월 워싱턴 D.C.에서 열렸다.", ans:"O", exp:"워싱턴 D.C. 케네디 센터에서 2025년 12월 5일 진행됐다."}
 ];
 
 /* ---------- 경품 풀 (상품 당첨자에게 1인 1개씩 무작위 배정) ---------- */
@@ -703,6 +703,7 @@ function viewWait(){
     <p class="eyebrow">대기실</p>
     <h2>${escapeHtml(App.me.name)}님, 입장 완료!</h2>
     <p class="lead">사번 ${escapeHtml(App.me.employeeId)} · 방 코드 ${App.room}<br>관리자가 퀴즈를 시작하면 자동으로 첫 문제가 표시됩니다.</p>
+    <button class="btn btn-ghost" id="btn-manual-refresh" style="margin-top:1rem;">화면이 안 바뀌나요? 새로고침</button>
   </div>`;
 }
 
@@ -752,7 +753,12 @@ function viewPQuestion(){
       <button class="${oClasses.join(' ')}" id="btn-pick-o" ${already?'disabled':''}>O</button>
       <button class="${xClasses.join(' ')}" id="btn-pick-x" ${already?'disabled':''}>✕</button>
     </div>
-    <button class="btn btn-primary" id="btn-submit-answer" style="margin-top:1.1rem;" ${canSubmit?'':'disabled'}>${already?'제출 완료':'제출하기'}</button>
+    ${already
+      ? `<div class="row-2" style="margin-top:1.1rem;">
+           <button class="btn btn-primary" id="btn-submit-answer" disabled>제출 완료</button>
+           <button class="btn btn-ghost" id="btn-edit-answer">수정하기</button>
+         </div>`
+      : `<button class="btn btn-primary" id="btn-submit-answer" style="margin-top:1.1rem;" ${canSubmit?'':'disabled'}>제출하기</button>`}
     <p id="submit-error" style="color:var(--c-red); font-size:0.85rem; text-align:center; min-height:1.1rem; margin:0.5rem 0 0;"></p>
     <p class="status-line">${statusMsg}</p>
   </div>`;
@@ -805,6 +811,7 @@ function viewPFinal(){
     <p class="lead">${escapeHtml(App.me.name)}님의 점수: <strong>${rec ? rec.score : 0}점</strong></p>
     <p class="lead">${alive ? "모든 문제를 끝까지 맞히셨어요!" : "끝까지 함께해 주셔서 감사합니다."}</p>
     ${prizeHtml}
+    <button class="btn btn-ghost" id="btn-manual-refresh" style="margin-top:1.2rem;">관리자가 새 게임을 시작했나요? 새로고침</button>
   </div>`;
 }
 
@@ -909,9 +916,12 @@ function afterRender(){
       document.getElementById("btn-back-join").onclick = () => { App.screen="join"; render(); };
       break;
 
-    case "wait":
-      // polling handles transition
+    case "wait": {
+      // polling handles transition automatically; manual refresh as a safety net
+      const refreshBtn = document.getElementById("btn-manual-refresh");
+      if(refreshBtn) refreshBtn.onclick = () => location.reload();
       break;
+    }
 
     case "p-question":
       stopTicker();
@@ -921,6 +931,8 @@ function afterRender(){
         document.getElementById("btn-pick-o").onclick = () => onSelectAnswer("O");
         document.getElementById("btn-pick-x").onclick = () => onSelectAnswer("X");
         document.getElementById("btn-submit-answer").onclick = onSubmitAnswer;
+        const editBtn = document.getElementById("btn-edit-answer");
+        if(editBtn) editBtn.onclick = onEditAnswer;
       } else {
         updateTimerVisual(App.state.phaseStartedAt);
         startTicker(() => updateTimerVisual(App.state.phaseStartedAt));
@@ -931,9 +943,12 @@ function afterRender(){
       stopTicker();
       break;
 
-    case "p-final":
+    case "p-final": {
       stopTicker();
+      const refreshBtn = document.getElementById("btn-manual-refresh");
+      if(refreshBtn) refreshBtn.onclick = () => location.reload();
       break;
+    }
   }
 }
 
@@ -961,7 +976,9 @@ async function onCreateRoom(){
 
   const isRestart = !!(App.isRestart && App.room);
   const room = isRestart ? App.room : makeRoomCode();
-  const order = shuffle([...Array(QUESTIONS.length).keys()]).slice(0, App.setupCount);
+  // 문제 배열은 이미 쉬운 문제 → 어려운 문제 순서로, 그리고 한국 대표팀 문제가 절반 이상
+  // 섞여 들어가도록 정렬되어 있으므로, 순서를 섞지 않고 앞에서부터 그대로 사용한다.
+  const order = [...Array(QUESTIONS.length).keys()].slice(0, App.setupCount);
   const state = {
     phase: "lobby",
     totalQuestions: App.setupCount,
@@ -1061,6 +1078,7 @@ async function onNextStep(){
   if(isLast){
     await refreshParticipants();
     await assignPrizes();
+    await refreshParticipants(); // 실제로 DB에 기록된 경품 값으로 다시 확인
     App.state.phase = "finished";
     await storageSet(`room:${App.room}:state`, App.state);
     App.screen = "admin-final";
@@ -1080,6 +1098,7 @@ async function onEndQuizEarly(){
   if(!sure) return;
   await refreshParticipants();
   await assignPrizes();
+  await refreshParticipants(); // 실제로 DB에 기록된 경품 값으로 다시 확인
   App.state.phase = "finished";
   await storageSet(`room:${App.room}:state`, App.state);
   App.screen = "admin-final";
@@ -1104,9 +1123,16 @@ async function assignPrizes(){
 
   for(let i=0;i<needPrize.length;i++){
     const prize = i < shuffledRemaining.length ? shuffledRemaining[i] : null;
-    needPrize[i].prize = prize;
+    if(prize === null){
+      delete needPrize[i].prize;
+    } else {
+      needPrize[i].prize = prize;
+    }
     const key = needPrize[i].key || sanitizeId(needPrize[i].employeeId);
-    await storageSet(`room:${App.room}:p:${key}`, needPrize[i]);
+    const ok = await storageSet(`room:${App.room}:p:${key}`, needPrize[i]);
+    if(!ok){
+      console.error("경품 저장 실패:", key, LAST_STORAGE_ERROR);
+    }
   }
 }
 
@@ -1143,6 +1169,53 @@ function onExportSurvivorsExcel(){
 }
 
 /* ================= PARTICIPANT ACTIONS ================= */
+function routeParticipantByPhase(state, record){
+  if(state.phase === "lobby"){
+    App.localAnswered = false;
+    App.localChoice = null;
+    App.screen = "wait";
+  } else if(state.phase === "question"){
+    App.qIndex = state.currentIndex;
+    App.localAnswered = !!(record.answers && record.answers[App.qIndex]);
+    App.localChoice = App.localAnswered ? record.answers[App.qIndex].choice : null;
+    App.screen = "p-question";
+  } else if(state.phase === "answer"){
+    App.qIndex = state.currentIndex;
+    App.screen = "p-answer";
+  } else if(state.phase === "finished"){
+    App.screen = "p-final";
+  } else {
+    App.screen = "wait";
+  }
+}
+
+function updateUrlWithEmp(room, empKey){
+  try{
+    const url = new URL(location.href);
+    url.searchParams.set("role", "participant");
+    url.searchParams.set("room", room);
+    url.searchParams.set("emp", empKey);
+    history.replaceState(null, "", url.toString());
+  }catch(e){ /* 일부 환경(예: 샌드박스 iframe)에서는 막힐 수 있음 - 무시 */ }
+}
+
+// 새로고침/탭 재진입 시, URL에 저장된 방 코드+사번으로 자동 복귀를 시도한다.
+// 성공하면 true, (방이나 내 기록을 찾지 못해) 실패하면 false를 반환한다.
+async function tryAutoRejoin(room, empKey){
+  const state = await storageGet(`room:${room}:state`);
+  const record = await storageGet(`room:${room}:p:${empKey}`);
+  if(!state || !record) return false;
+
+  App.role = "participant";
+  App.room = room;
+  App.myRecord = ensureRecordShape(record);
+  App.me = { employeeId: App.myRecord.employeeId, name: App.myRecord.name, key: empKey };
+  App.state = state;
+  routeParticipantByPhase(state, App.myRecord);
+  render();
+  return true;
+}
+
 async function onSubmitJoin(){
   const roomInput = sanitizeRoomCode(document.getElementById("in-room").value);
   const empRaw = document.getElementById("in-empid").value.trim();
@@ -1193,22 +1266,8 @@ async function onSubmitJoin(){
   App.me = { employeeId: empRaw, name: record.name, key: empId };
   App.state = state;
   App.myRecord = record;
-
-  if(state.phase === "lobby"){
-    App.screen = "wait";
-  } else if(state.phase === "question"){
-    App.qIndex = state.currentIndex;
-    App.localAnswered = !!(record.answers && record.answers[App.qIndex]);
-    if(App.localAnswered) App.localChoice = record.answers[App.qIndex].choice;
-    App.screen = "p-question";
-  } else if(state.phase === "answer"){
-    App.qIndex = state.currentIndex;
-    App.screen = "p-answer";
-  } else if(state.phase === "finished"){
-    App.screen = "p-final";
-  } else {
-    App.screen = "wait";
-  }
+  routeParticipantByPhase(state, record);
+  updateUrlWithEmp(roomInput, empId);
   render();
 }
 
@@ -1247,6 +1306,21 @@ async function onSubmitAnswer(){
     if(errEl) errEl.textContent = "제출 중 오류가 발생했습니다: " + (e && e.message ? e.message : String(e));
     if(btn){ btn.disabled = false; btn.textContent = "제출하기"; }
   }
+}
+
+async function onEditAnswer(){
+  const idx = App.qIndex;
+  try{
+    if(App.myRecord && App.myRecord.answers){
+      delete App.myRecord.answers[idx];
+      await storageSet(`room:${App.room}:p:${App.me.key}`, App.myRecord);
+    }
+  }catch(e){
+    console.error("수정하기 처리 중 오류:", e);
+  }
+  // 제출 상태만 취소한다. 직전에 골랐던 답은 그대로 선택되어 있어 바로 다시 제출하거나 바꿀 수 있다.
+  App.localAnswered = false;
+  render();
 }
 
 /* ================= POLLING LOOP (drives sync + transitions) ================= */
@@ -1371,15 +1445,39 @@ async function gradeMyAnswer(idx){
 }
 
 /* ================= boot ================= */
-initFromUrl();
-render();
-checkStorageHealth().then(ok => {
-  App.storageOk = ok;
-  if(App.screen === "home" || App.screen === "admin-setup"){
-    render();
+async function boot(){
+  initFromUrl();
+  render();
+
+  const params = new URLSearchParams(location.search);
+  if(params.get("role") === "participant" && params.get("room") && params.get("emp")){
+    const ok = await tryAutoRejoin(params.get("room").trim(), params.get("emp").trim());
+    if(!ok){
+      // 자동 복귀에 실패하면 사번/이름을 다시 입력하는 입장 화면으로 안내한다.
+      App.room = params.get("room").trim();
+      App.screen = "join";
+      render();
+    }
   }
-});
-setInterval(pollTick, POLL_MS);
+
+  checkStorageHealth().then(ok => {
+    App.storageOk = ok;
+    if(App.screen === "home" || App.screen === "admin-setup"){
+      render();
+    }
+  });
+
+  // 화면이 꺼졌다가 다시 켜지거나, 백그라운드에 있던 탭이 다시 보이게 되면
+  // 다음 polling 주기를 기다리지 않고 바로 한 번 더 확인한다.
+  document.addEventListener("visibilitychange", () => {
+    if(document.visibilityState === "visible"){
+      pollTick();
+    }
+  });
+
+  setInterval(pollTick, POLL_MS);
+}
+boot();
 </script>
 </body>
 </html>
