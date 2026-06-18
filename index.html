@@ -291,6 +291,21 @@ const QUESTIONS = [
   {q:"이번 대회부터는 개최국의 자동 진출권도 대륙별 배당 쿼터에 포함된다.", ans:"O", exp:"과거엔 개최국 몫이 대륙 쿼터와 별도였지만, 이번 대회부터 포함되는 방식으로 바뀌었다."}
 ];
 
+/* ---------- 경품 풀 (상품 당첨자에게 1인 1개씩 무작위 배정) ---------- */
+const PRIZE_DEFS = [
+  {name:"축구공", qty:5},
+  {name:"헤어밴드", qty:25},
+  {name:"영화관람권", qty:5},
+  {name:"된장고추장", qty:2},
+  {name:"서울스카이", qty:5},
+  {name:"GRS상품권", qty:5}
+];
+function buildPrizePool(){
+  const pool = [];
+  PRIZE_DEFS.forEach(d => { for(let i=0;i<d.qty;i++) pool.push(d.name); });
+  return pool;
+}
+
 /* ---------- FIREBASE 설정 (반드시 본인 값으로 채워야 합니다) ---------- */
 /*
   아래 FIREBASE_CONFIG 값을 본인의 Firebase 프로젝트 설정으로 바꿔주세요.
@@ -410,6 +425,7 @@ function ensureRecordShape(rec){
   if(!rec.answers || typeof rec.answers !== "object") rec.answers = {};
   if(typeof rec.score !== "number") rec.score = 0;
   if(typeof rec.alive !== "boolean") rec.alive = true;
+  if(!rec.key) rec.key = sanitizeId(rec.employeeId);
   return rec;
 }
 function escapeHtml(str){
@@ -624,7 +640,7 @@ function viewAdminFinal(){
     ? sortedSurvivors.map((p,i)=>`
       <li>
         <span><span class="rnum">${i+1}</span>${escapeHtml(p.name)} <span class="pid">(${escapeHtml(p.employeeId)})</span></span>
-        <span>🎁</span>
+        <span style="font-weight:800; color:var(--c-gold);">${p.prize ? escapeHtml(p.prize) : '미배정'}</span>
       </li>`).join("")
     : `<li class="empty-note" style="border-bottom:none;">상품 당첨자가 없습니다</li>`;
   return `
@@ -774,12 +790,19 @@ function viewPAnswer(){
 function viewPFinal(){
   const rec = App.myRecord;
   const alive = rec ? rec.alive : false;
+  const prizeHtml = (alive && rec && rec.prize)
+    ? `<div class="card" style="margin-top:1.2rem;">
+         <p style="font-weight:700; margin:0 0 0.3rem; color:var(--c-muted); font-size:0.85rem;">🎁 당첨 경품</p>
+         <p style="font-size:1.5rem; font-weight:800; color:var(--c-gold); margin:0;">${escapeHtml(rec.prize)}</p>
+       </div>`
+    : "";
   return `
   <div class="center-col" style="text-align:center;">
     <p class="eyebrow">최종 결과</p>
     <h1>${alive ? "🏆 최종 생존!" : "수고하셨습니다"}</h1>
     <p class="lead">${escapeHtml(App.me.name)}님의 점수: <strong>${rec ? rec.score : 0}점</strong></p>
     <p class="lead">${alive ? "모든 문제를 끝까지 맞히셨어요!" : "끝까지 함께해 주셔서 감사합니다."}</p>
+    ${prizeHtml}
   </div>`;
 }
 
@@ -958,7 +981,7 @@ async function refreshParticipants(){
   const list = [];
   for(const k of keys){
     const v = await storageGet(k);
-    if(v) list.push(v);
+    if(v) list.push(ensureRecordShape(v));
   }
   list.sort((a,b)=>a.joinedAt - b.joinedAt);
   App.participants = list;
@@ -1013,9 +1036,10 @@ function updateAliveStats(){
 async function onNextStep(){
   const isLast = App.state.currentIndex + 1 >= App.state.totalQuestions;
   if(isLast){
+    await refreshParticipants();
+    await assignPrizes();
     App.state.phase = "finished";
     await storageSet(`room:${App.room}:state`, App.state);
-    await refreshParticipants();
     App.screen = "admin-final";
     render();
   } else {
@@ -1031,11 +1055,27 @@ async function onNextStep(){
 async function onEndQuizEarly(){
   const sure = confirm("정말 퀴즈를 종료할까요? 더 이상 문제를 진행할 수 없고, 참가자 화면도 바로 최종 결과로 넘어갑니다.");
   if(!sure) return;
+  await refreshParticipants();
+  await assignPrizes();
   App.state.phase = "finished";
   await storageSet(`room:${App.room}:state`, App.state);
-  await refreshParticipants();
   App.screen = "admin-final";
   render();
+}
+
+async function assignPrizes(){
+  if(App.state.prizesAssigned) return;
+  const winners = App.participants.filter(p => p.alive);
+  if(winners.length > 0){
+    const pool = shuffle(buildPrizePool());
+    for(let i=0;i<winners.length;i++){
+      const prize = i < pool.length ? pool[i] : null;
+      winners[i].prize = prize;
+      const key = winners[i].key || sanitizeId(winners[i].employeeId);
+      await storageSet(`room:${App.room}:p:${key}`, winners[i]);
+    }
+  }
+  App.state.prizesAssigned = true;
 }
 
 function onExportSurvivorsExcel(){
@@ -1059,9 +1099,9 @@ function onExportSurvivorsExcel(){
     ["총 참여자 수", totalCount],
     ["상품 당첨자 수", winners.length],
     [],
-    ["이름", "사번", "점수"]
+    ["이름", "사번", "점수", "경품"]
   ];
-  winners.forEach(p => aoa.push([p.name, p.employeeId, p.score]));
+  winners.forEach(p => aoa.push([p.name, p.employeeId, p.score, p.prize || "미배정"]));
 
   const worksheet = XLSX.utils.aoa_to_sheet(aoa);
   const workbook = XLSX.utils.book_new();
@@ -1107,6 +1147,7 @@ async function onSubmitJoin(){
     record = {
       employeeId: empRaw,
       name: nameRaw,
+      key: empId,
       joinedAt: Date.now(),
       alive: true,
       score: 0,
