@@ -368,7 +368,7 @@ async function checkStorageHealth(){
     LAST_STORAGE_ERROR = "Firebase 설정이 비어있습니다. 코드 상단의 FIREBASE_CONFIG 값을 본인의 Firebase 프로젝트 값으로 채워주세요.";
     return false;
   }
-  const testKey = "__healthcheck__" + Date.now();
+  const testKey = "room:__healthcheck__:" + Date.now();
   const ok = await storageSet(testKey, {t:Date.now()});
   if(!ok) return false;
   const back = await storageGet(testKey);
