@@ -269,26 +269,21 @@ const POLL_MS = 1300;
 const TICK_MS = 120;
 
 const QUESTIONS = [
-  {q:"한국 축구 국가대표팀의 주장은 손흥민이다.", ans:"O", exp:"손흥민은 2026 북중미 월드컵에서도 대표팀 주장을 맡고 있다."},
-  {q:"2026 월드컵은 미국·캐나다·멕시코 3개국이 공동 개최한다.", ans:"O", exp:"사상 최초로 세 나라가 함께 개최하는 월드컵이다."},
-  {q:"한국 대표팀을 이끄는 감독은 클린스만 감독이다.", ans:"X", exp:"현재 한국 대표팀을 이끄는 감독은 홍명보 감독이다."},
-  {q:"이번 대회는 이전과 동일하게 32개국이 본선에 참가한다.", ans:"X", exp:"32개국에서 48개국으로 확대되어, 역대 최초로 48개 팀이 본선에 나선다."},
-  {q:"한국 대표팀은 이번 대회 B조에 편성되었다.", ans:"X", exp:"한국은 A조에서 개최국 멕시코, 남아프리카공화국, 체코와 맞붙는다."},
-  {q:"결승전은 캐나다 토론토에서 열린다.", ans:"X", exp:"결승전은 7월 19일 미국 뉴저지주 메트라이프 스타디움에서 열린다."},
-  {q:"한국의 조별리그 3경기는 모두 멕시코 현지에서 열린다.", ans:"O", exp:"1·2차전은 과달라하라, 3차전은 몬테레이에서 펼쳐진다."},
-  {q:"개막전은 2026년 6월 11일 멕시코시티 에스타디오 아스테카에서 열린다.", ans:"O", exp:"멕시코와 남아프리카공화국의 경기로 대회의 막이 오른다."},
-  {q:"한국은 조별리그 1차전에서 체코에 패배했다.", ans:"X", exp:"한국은 황인범·오현규의 연속 골로 체코를 2-1로 꺾는 역전승을 거뒀다."},
-  {q:"전체 경기 수는 기존 64경기에서 104경기로 늘어난다.", ans:"O", exp:"48개국 체제 도입으로 경기 수가 약 63% 증가했다."},
-  {q:"체코와의 1차전에서 결승골을 넣은 선수는 손흥민이다.", ans:"X", exp:"결승골은 교체로 들어간 오현규가 넣었고, 손흥민은 그 전에 교체되어 나갔다."},
-  {q:"본선 조 편성은 8개 조, 조당 4개 팀으로 구성된다.", ans:"X", exp:"이번 대회는 12개 조, 조당 4개 팀으로 편성되며 32강 토너먼트가 새로 생겼다."},
-  {q:"손흥민은 이번 대회가 개인 통산 네 번째 월드컵 출전이다.", ans:"O", exp:"2014, 2018, 2022 대회에 이어 2026년이 손흥민의 네 번째 월드컵이다."},
-  {q:"이번 대회 공식 경기구의 이름은 '알 릴라(Al Rihla)'이다.", ans:"X", exp:"이번 대회 공식 경기구는 '트리온다(Trionda)'이며, 알 릴라는 2022 카타르 월드컵의 공식구였다."},
-  {q:"손흥민은 이번 대회에서 한 골만 추가하면 한국 선수 월드컵 최다 득점 기록을 단독으로 보유하게 된다.", ans:"O", exp:"안정환·박지성과 함께 3골로 공동 1위인 손흥민은 한 골만 더 넣으면 단독 최다 득점자가 된다."},
-  {q:"조별리그를 통과한 32개 팀은 16강에 앞서 별도의 32강전을 치른다.", ans:"O", exp:"48개국 체제에서 새롭게 32강 라운드가 도입되었다."},
-  {q:"김민재의 현재 소속 클럽은 파리 생제르맹이다.", ans:"X", exp:"김민재의 소속팀은 바이에른 뮌헨이며, 파리 생제르맹 소속은 이강인이다."},
-  {q:"이번 대회의 공식 명칭에는 개최국 이름이 모두 들어간다.", ans:"X", exp:"역대 최초로 개최국명을 넣지 않고 연도만 사용한 명칭(FIFA 월드컵 2026)이 채택됐다."},
-  {q:"한국 선수 중 월드컵 최다 출전 기록(16회)을 보유한 인물은 홍명보 감독이다.", ans:"O", exp:"현역 시절 홍명보 감독은 한국 선수 최다 월드컵 출전(16경기) 기록을 보유하고 있다."},
-  {q:"본선 조 추첨식은 2025년 12월 워싱턴 D.C.에서 열렸다.", ans:"O", exp:"워싱턴 D.C. 케네디 센터에서 2025년 12월 5일 진행됐다."}
+  {q:"2026 월드컵은 미국, 캐나다, 멕시코 3개국이 공동 개최한다.", ans:"O", exp:"사상 최초로 3개국이 공동 개최하는 월드컵이다."},
+  {q:"한국은 2002년 월드컵에서 역대 최고 성적인 4강에 올랐다.", ans:"O", exp:"2002년 한일 월드컵에서 한국은 아시아 최초로 4강에 올랐다."},
+  {q:"월드컵은 5년마다 열린다.", ans:"X", exp:"월드컵은 4년마다 열린다."},
+  {q:"한국 축구대표팀의 월드컵 첫 본선 출전은 1954년이다.", ans:"O", exp:"1954년 스위스 월드컵이 한국의 첫 본선 출전이었다."},
+  {q:"한국은 첫 월드컵 본선(1954년)에서 최소 1승을 거뒀다.", ans:"X", exp:"2전 0승, 16실점으로 마친 뼈아픈 첫 도전이었다."},
+  {q:"FIFA 본부는 영국 런던에 있다.", ans:"X", exp:"FIFA 본부는 스위스 취리히에 있다."},
+  {q:"왕이 넘어지면 '킹콩!'이라고 한다. (힌트: king + 쿵)", ans:"O", exp:"King(왕)과 '쿵' 넘어지는 소리를 합치면 킹콩이 되는 아재 개그다."},
+  {q:"역대 월드컵 최다 우승국은 독일이다.", ans:"X", exp:"최다 우승국은 브라질로, 통산 5회 우승했다."},
+  {q:"2026 월드컵에는 48개국이 참가한다.", ans:"O", exp:"역대 최초로 48개국이 본선에 참가한다."},
+  {q:"2026 월드컵 한국 대표팀 주장은 손흥민 선수다.", ans:"O", exp:"캡틴은 손흥민, 감독은 홍명보다."},
+  {q:"세상에서 가장 추운 바다는 '썰렁해'이다. (힌트: 썰렁해)", ans:"O", exp:"'썰렁하다'는 말을 바다 이름처럼 엮은 아재 개그다."},
+  {q:"축구 정규 경기 시간은 전후반 합쳐서 총 80분이다.", ans:"X", exp:"정규 경기 시간은 90분(전후반 각 45분)이다."},
+  {q:"오리를 영어로 'duck'이라고 한다. 그렇다면 오리 두 마리는 '더블덕'이라고 부른다. (힌트: 더블덕)", ans:"X", exp:"정답은 '투덕투덕'이다. duck(덕)이 두 마리니까 '투(two)+덕'이 겹쳐 '투덕투덕'이 되는 말장난이다."},
+  {q:"월드컵 사상 첫 골을 넣은 선수는 우루과이 선수다.", ans:"X", exp:"월드컵 첫 골은 1930년 프랑스의 뤼시앵 로랑이 넣었다."},
+  {q:"월드컵 본선 통산 최다 득점 1위는 크리스티아누 호날두이다.", ans:"X", exp:"통산 최다 득점은 독일의 미로슬라프 클로제와 아르헨티나의 리오넬 메시가 16골로 공동 1위다. 메시는 2026 월드컵 알제리전 해트트릭으로 클로제의 기록과 동률을 이뤘다."}
 ];
 
 /* ---------- 경품 풀 (상품 당첨자에게 1인 1개씩 무작위 배정) ---------- */
@@ -530,7 +525,8 @@ function viewHome(){
 
 /* ================= ADMIN: SETUP ================= */
 function viewAdminSetup(){
-  const counts = [5,10,15,20];
+  let counts = [5,10,15,20,25,30].filter(c => c <= QUESTIONS.length);
+  if(counts.length === 0 || counts[counts.length-1] !== QUESTIONS.length) counts.push(QUESTIONS.length);
   const optsHtml = counts.map(c => `
     <button class="count-btn ${App.setupCount===c?'selected':''}" data-count="${c}">
       ${c}문제 ${c===QUESTIONS.length?'<small>전체</small>':''}
@@ -541,7 +537,7 @@ function viewAdminSetup(){
     <p class="eyebrow">관리자 설정</p>
     <h2>몇 문제로 진행할까요?</h2>
     <p class="lead">총 ${QUESTIONS.length}개 문제 중 진행할 문제 수를 선택하세요.</p>
-    ${App.isRestart ? `<div class="card" style="background:var(--c-green-soft);"><p style="margin:0; font-weight:700; color:var(--c-green-deep);">🔁 기존 참가자 ${App.participants.length}명과 함께 같은 방 코드(${App.room})로 새 게임을 시작합니다. 다시 입장할 필요 없어요.</p></div>` : ""}
+    ${App.isRestart ? `<div class="card" style="background:var(--c-green-soft);"><p style="margin:0; font-weight:700; color:var(--c-green-deep);">🔁 기존 참가자 ${App.participants.length}명과 함께 같은 방 코드(${App.room})로 새 게임을 시작합니다. 지난 게임에서 풀었던 문제는 건너뛰고 이어서 새로운 문제로 진행돼요. 다시 입장할 필요 없어요.</p></div>` : ""}
     ${storageWarningBanner()}
     <div class="count-grid">${optsHtml}</div>
     <button class="btn btn-primary" id="btn-create-room" ${canCreate?'':'disabled'}>${App.isRestart ? "같은 인원으로 새 게임 시작" : "게임방 만들기"}</button>
@@ -811,7 +807,8 @@ function viewPFinal(){
     <p class="lead">${escapeHtml(App.me.name)}님의 점수: <strong>${rec ? rec.score : 0}점</strong></p>
     <p class="lead">${alive ? "모든 문제를 끝까지 맞히셨어요!" : "끝까지 함께해 주셔서 감사합니다."}</p>
     ${prizeHtml}
-    <button class="btn btn-ghost" id="btn-manual-refresh" style="margin-top:1.2rem;">관리자가 새 게임을 시작했나요? 새로고침</button>
+    <button class="btn btn-primary" id="btn-rejoin" style="margin-top:1.2rem;">재참가</button>
+    <p class="footer-note" id="rejoin-note">관리자가 같은 인원으로 새 게임을 시작하면 이 버튼으로 바로 다시 들어갈 수 있어요.</p>
   </div>`;
 }
 
@@ -945,8 +942,8 @@ function afterRender(){
 
     case "p-final": {
       stopTicker();
-      const refreshBtn = document.getElementById("btn-manual-refresh");
-      if(refreshBtn) refreshBtn.onclick = () => location.reload();
+      const rejoinBtn = document.getElementById("btn-rejoin");
+      if(rejoinBtn) rejoinBtn.onclick = onRejoinClick;
       break;
     }
   }
@@ -976,15 +973,27 @@ async function onCreateRoom(){
 
   const isRestart = !!(App.isRestart && App.room);
   const room = isRestart ? App.room : makeRoomCode();
-  // 문제 배열은 이미 쉬운 문제 → 어려운 문제 순서로, 그리고 한국 대표팀 문제가 절반 이상
-  // 섞여 들어가도록 정렬되어 있으므로, 순서를 섞지 않고 앞에서부터 그대로 사용한다.
-  const order = [...Array(QUESTIONS.length).keys()].slice(0, App.setupCount);
+
+  // 재시작이면 직전 게임에서 어디까지 문제를 썼는지(cursor)를 DB에서 다시 확인해서
+  // 이어지는 문제부터 시작한다. 문제 은행을 다 쓰면 처음으로 순환한다.
+  let startCursor = 0;
+  if(isRestart){
+    const prevState = await storageGet(`room:${room}:state`);
+    if(prevState && typeof prevState.cursor === "number") startCursor = prevState.cursor;
+  }
+  const order = [];
+  for(let i=0;i<App.setupCount;i++){
+    order.push((startCursor + i) % QUESTIONS.length);
+  }
+  const nextCursor = (startCursor + App.setupCount) % QUESTIONS.length;
+
   const state = {
     phase: "lobby",
     totalQuestions: App.setupCount,
     order,
     currentIndex: 0,
     phaseStartedAt: 0,
+    cursor: nextCursor,
     createdAt: Date.now()
   };
   const ok = await storageSet(`room:${room}:state`, state);
@@ -1344,6 +1353,22 @@ async function pollTick(){
   if(App.role === "participant"){
     await handleParticipantSync(remote);
   }
+}
+
+async function onRejoinClick(){
+  const btn = document.getElementById("btn-rejoin");
+  const note = document.getElementById("rejoin-note");
+  if(btn){ btn.disabled = true; btn.textContent = "확인 중..."; }
+
+  const before = App.screen;
+  await pollTick();
+
+  if(App.screen === before){
+    // 화면이 그대로면 아직 관리자가 새 게임을 시작하지 않은 상태
+    if(btn){ btn.disabled = false; btn.textContent = "재참가"; }
+    if(note) note.textContent = "아직 새 게임이 시작되지 않았어요. 관리자가 시작하면 자동으로도 화면이 넘어갑니다.";
+  }
+  // 화면이 바뀌었다면 handleParticipantSync 안에서 이미 render()로 새 화면을 그렸다.
 }
 
 async function handleParticipantSync(remote){
