@@ -8,6 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --c-bg:#F6F7F3;
@@ -577,6 +578,7 @@ function viewAdminQuestion(){
       <span id="submit-count" style="font-weight:800; color:var(--c-green-deep);">제출 현황 집계 중...</span>
     </div>
     <button class="btn btn-gold" id="btn-reveal-answer">정답 공개</button>
+    <button class="btn btn-ghost" id="btn-end-quiz" style="margin-top:0.6rem; color:var(--c-red);">퀴즈 종료</button>
     <p class="footer-note">참가자 화면에서는 정답 공개 버튼이 보이지 않습니다.</p>
   </div>`;
 }
@@ -602,16 +604,28 @@ function viewAdminAnswer(){
       <div class="stat-box"><div class="num" id="stat-out">-</div><div class="lbl">탈락자(실시간)</div></div>
     </div>
     <button class="btn btn-primary" id="btn-next-step">${isLast ? "최종 결과 보기" : "다음 문제"}</button>
+    ${isLast ? "" : `<button class="btn btn-ghost" id="btn-end-quiz" style="margin-top:0.6rem; color:var(--c-red);">퀴즈 종료</button>`}
   </div>`;
 }
 
 /* ================= ADMIN: FINAL ================= */
 function viewAdminFinal(){
   const survivors = App.participants.filter(p => p.alive);
+  const sortedSurvivors = survivors.slice().sort((a,b)=>{
+    if(b.score !== a.score) return b.score - a.score;
+    return a.joinedAt - b.joinedAt;
+  });
   const sorted = App.participants.slice().sort((a,b)=>{
     if(b.score !== a.score) return b.score - a.score;
     return a.joinedAt - b.joinedAt;
   });
+  const survivorListHtml = sortedSurvivors.length
+    ? sortedSurvivors.map((p,i)=>`
+      <li>
+        <span><span class="rnum">${i+1}</span>${escapeHtml(p.name)} <span class="pid">(${escapeHtml(p.employeeId)})</span></span>
+        <span>🏆</span>
+      </li>`).join("")
+    : `<li class="empty-note" style="border-bottom:none;">탈락하지 않은 참가자가 없습니다</li>`;
   const rankHtml = sorted.length ? sorted.map((p,i)=>`
     <li>
       <span><span class="rnum">${i+1}</span>${escapeHtml(p.name)} <span class="pid">(${escapeHtml(p.employeeId)})</span></span>
@@ -621,7 +635,13 @@ function viewAdminFinal(){
   <div>
     <div class="topbar"><span>관리자 모드</span><span>방 코드 ${App.room}</span></div>
     <p class="eyebrow">최종 결과</p>
-    <h2>최종 생존자 ${survivors.length}명</h2>
+    <h2>탈락하지 않은 참가자 ${survivors.length}명</h2>
+    <div class="card">
+      <ul class="rank-list">${survivorListHtml}</ul>
+    </div>
+    <button class="btn btn-gold" id="btn-export-excel">생존자 명단 엑셀로 내보내기</button>
+
+    <h2 style="margin-top:1.6rem;">전체 참가자 순위</h2>
     <div class="card">
       <ul class="rank-list">${rankHtml}</ul>
     </div>
@@ -842,12 +862,14 @@ function afterRender(){
       updateTimerVisual(App.state.phaseStartedAt);
       startTicker(() => updateTimerVisual(App.state.phaseStartedAt));
       document.getElementById("btn-reveal-answer").onclick = onRevealAnswer;
+      document.getElementById("btn-end-quiz").onclick = onEndQuizEarly;
       refreshParticipants().then(updateSubmitCount);
       break;
 
     case "admin-answer":
       refreshParticipants().then(updateAliveStats);
       document.getElementById("btn-next-step").onclick = onNextStep;
+      { const endBtn = document.getElementById("btn-end-quiz"); if(endBtn) endBtn.onclick = onEndQuizEarly; }
       break;
 
     case "admin-final":
@@ -855,6 +877,7 @@ function afterRender(){
         App.room=null; App.state=null; App.participants=[]; App.setupCount=null;
         App.screen="admin-setup"; render();
       };
+      document.getElementById("btn-export-excel").onclick = onExportSurvivorsExcel;
       break;
 
     case "join":
@@ -1019,6 +1042,45 @@ async function onNextStep(){
   }
 }
 
+async function onEndQuizEarly(){
+  const sure = confirm("정말 퀴즈를 종료할까요? 더 이상 문제를 진행할 수 없고, 참가자 화면도 바로 최종 결과로 넘어갑니다.");
+  if(!sure) return;
+  App.state.phase = "finished";
+  await storageSet(`room:${App.room}:state`, App.state);
+  await refreshParticipants();
+  App.screen = "admin-final";
+  render();
+}
+
+function onExportSurvivorsExcel(){
+  if(typeof XLSX === "undefined"){
+    alert("엑셀 내보내기 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.");
+    return;
+  }
+  const survivors = App.participants
+    .filter(p => p.alive)
+    .slice()
+    .sort((a,b)=>{
+      if(b.score !== a.score) return b.score - a.score;
+      return a.joinedAt - b.joinedAt;
+    });
+  if(survivors.length === 0){
+    alert("탈락하지 않은 참가자가 없어 내보낼 명단이 없습니다.");
+    return;
+  }
+  const rows = survivors.map((p, i) => ({
+    "순위": i + 1,
+    "이름": p.name,
+    "사번": p.employeeId,
+    "점수": p.score
+  }));
+  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "생존자명단");
+  const filename = `OX퀴즈_생존자명단_방${App.room}.xlsx`;
+  XLSX.writeFile(workbook, filename);
+}
+
 /* ================= PARTICIPANT ACTIONS ================= */
 async function onSubmitJoin(){
   const roomInput = sanitizeRoomCode(document.getElementById("in-room").value);
@@ -1172,6 +1234,10 @@ async function handleParticipantSync(remote){
     if(remote.phase === "answer" && remote.currentIndex === App.qIndex){
       await gradeMyAnswer(remote.currentIndex);
       App.screen = "p-answer";
+      render();
+    } else if(remote.phase === "finished"){
+      App.myRecord = ensureRecordShape(await storageGet(myKey) || App.myRecord);
+      App.screen = "p-final";
       render();
     }
     return;
