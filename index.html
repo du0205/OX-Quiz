@@ -397,6 +397,15 @@ function sanitizeRoomCode(raw){
   const s = (raw||"").trim().replace(/[^a-zA-Z0-9]/g, "");
   return s;
 }
+function ensureRecordShape(rec){
+  // Firebase Realtime Database는 빈 객체({})를 저장하지 않고 통째로 누락시키므로,
+  // 다시 불러왔을 때 answers 등의 필드가 사라져 있을 수 있다. 항상 보정해준다.
+  if(!rec) return rec;
+  if(!rec.answers || typeof rec.answers !== "object") rec.answers = {};
+  if(typeof rec.score !== "number") rec.score = 0;
+  if(typeof rec.alive !== "boolean") rec.alive = true;
+  return rec;
+}
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 }
@@ -1041,7 +1050,7 @@ async function onSubmitJoin(){
     return;
   }
 
-  let record = existing;
+  let record = ensureRecordShape(existing);
   if(!record){
     record = {
       employeeId: empRaw,
@@ -1093,18 +1102,26 @@ async function onSubmitAnswer(){
   if(errEl) errEl.textContent = "";
   if(btn){ btn.disabled = true; btn.textContent = "제출 중..."; }
 
-  App.myRecord.answers[idx] = { choice, ts: Date.now() };
-  const ok = await storageSet(`room:${App.room}:p:${App.me.key}`, App.myRecord);
+  try{
+    ensureRecordShape(App.myRecord);
+    App.myRecord.answers[idx] = { choice, ts: Date.now() };
+    const ok = await storageSet(`room:${App.room}:p:${App.me.key}`, App.myRecord);
 
-  if(!ok){
-    delete App.myRecord.answers[idx];
-    if(errEl) errEl.textContent = "제출에 실패했습니다: " + (LAST_STORAGE_ERROR || "잠시 후 다시 시도해주세요.");
+    if(!ok){
+      delete App.myRecord.answers[idx];
+      if(errEl) errEl.textContent = "제출에 실패했습니다: " + (LAST_STORAGE_ERROR || "잠시 후 다시 시도해주세요.");
+      if(btn){ btn.disabled = false; btn.textContent = "제출하기"; }
+      return;
+    }
+
+    App.localAnswered = true;
+    render();
+  }catch(e){
+    console.error("제출 중 예외 발생:", e);
+    if(App.myRecord && App.myRecord.answers) delete App.myRecord.answers[idx];
+    if(errEl) errEl.textContent = "제출 중 오류가 발생했습니다: " + (e && e.message ? e.message : String(e));
     if(btn){ btn.disabled = false; btn.textContent = "제출하기"; }
-    return;
   }
-
-  App.localAnswered = true;
-  render();
 }
 
 /* ================= POLLING LOOP (drives sync + transitions) ================= */
@@ -1137,13 +1154,13 @@ async function handleParticipantSync(remote){
   if(App.screen === "wait"){
     if(remote.phase === "question"){
       App.qIndex = remote.currentIndex;
-      App.myRecord = await storageGet(myKey) || App.myRecord;
+      App.myRecord = ensureRecordShape(await storageGet(myKey) || App.myRecord);
       App.localAnswered = false;
       App.localChoice = null;
       App.screen = "p-question";
       render();
     } else if(remote.phase === "finished"){
-      App.myRecord = await storageGet(myKey) || App.myRecord;
+      App.myRecord = ensureRecordShape(await storageGet(myKey) || App.myRecord);
       App.screen = "p-final";
       render();
     }
@@ -1162,13 +1179,13 @@ async function handleParticipantSync(remote){
   if(App.screen === "p-answer"){
     if(remote.phase === "question" && remote.currentIndex > App.qIndex){
       App.qIndex = remote.currentIndex;
-      App.myRecord = await storageGet(myKey) || App.myRecord;
+      App.myRecord = ensureRecordShape(await storageGet(myKey) || App.myRecord);
       App.localAnswered = false;
       App.localChoice = null;
       App.screen = "p-question";
       render();
     } else if(remote.phase === "finished"){
-      App.myRecord = await storageGet(myKey) || App.myRecord;
+      App.myRecord = ensureRecordShape(await storageGet(myKey) || App.myRecord);
       App.screen = "p-final";
       render();
     }
@@ -1179,7 +1196,7 @@ async function handleParticipantSync(remote){
 async function gradeMyAnswer(idx){
   const myKey = `room:${App.room}:p:${App.me.key}`;
   const fresh = await storageGet(myKey);
-  if(fresh) App.myRecord = fresh;
+  if(fresh) App.myRecord = ensureRecordShape(fresh);
 
   // idempotent: only grade once per question index
   const existingAnswer = App.myRecord.answers && App.myRecord.answers[idx];
