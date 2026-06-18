@@ -23,6 +23,8 @@
     --c-gold-soft:#FBF1DC;
     --c-red:#D9473D;
     --c-red-soft:#FBEAE8;
+    --c-blue:#2563A8;
+    --c-blue-soft:#E5EEF8;
     --radius-lg:20px;
     --radius-md:14px;
     --shadow:0 10px 30px rgba(15,35,25,0.08);
@@ -194,13 +196,16 @@
 
   .answer-banner{
     border-radius:var(--radius-md);
-    padding:1.1rem;
+    padding:1.2rem;
     text-align:center;
     margin-bottom:1rem;
+    background:var(--c-blue-soft);
+    color:var(--c-blue);
+    font-size:1.15rem;
+    font-weight:700;
+    line-height:1.5;
   }
-  .answer-banner.o{background:var(--c-green-soft); color:var(--c-green-deep);}
-  .answer-banner.x{background:var(--c-red-soft); color:#7a261f;}
-  .answer-banner .big{font-size:2.2rem; font-weight:800; display:block; margin-bottom:0.2rem;}
+  .answer-banner strong{font-weight:800; font-size:1.3em;}
 
   .result-tag{
     display:inline-block; padding:0.55rem 1rem; border-radius:999px;
@@ -212,7 +217,7 @@
   .exp-box{
     background:#fbfbf8; border:1px solid var(--c-line);
     border-radius:var(--radius-md);
-    padding:1rem; font-size:0.92rem; color:#3a4640;
+    padding:1.1rem; font-size:1.12rem; line-height:1.7; color:#3a4640;
   }
 
   .stat-row{display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-bottom:1rem;}
@@ -554,9 +559,10 @@ function viewAdminLobby(){
       <button class="btn btn-secondary" id="btn-regen-qr">QR 다시 만들기</button>
       <button class="btn btn-ghost" id="btn-copy-link">참가자 링크 복사</button>
     </div>
-    <div class="card">
-      <h2 style="margin-bottom:0.7rem;">참가자 <span id="p-count">0</span>명</h2>
-      <ul class="plist" id="p-list"><li class="empty-note">아직 입장한 참가자가 없습니다</li></ul>
+    <div class="card" style="text-align:center;">
+      <p class="eyebrow" style="margin-bottom:0.3rem;">현재 참가자</p>
+      <div id="p-count" style="font-size:2.6rem; font-weight:800; color:var(--c-green-deep);">0</div>
+      <p class="lead" style="margin:0.2rem 0 0;">명 참여 중</p>
     </div>
     <button class="btn btn-primary" id="btn-start-quiz">퀴즈 시작</button>
     <p class="footer-note">QR코드를 스캔하면 모바일에서 바로 입장 화면으로 이동합니다.</p>
@@ -589,14 +595,12 @@ function viewAdminAnswer(){
   const total = App.state.totalQuestions;
   const isLast = idx + 1 >= total;
   const q = QUESTIONS[App.state.order[idx]];
-  const ansClass = q.ans === "O" ? "o" : "x";
   return `
   <div>
     <div class="topbar"><span>관리자 모드</span><span>방 코드 ${App.room}</span></div>
     <p class="qnum">문제 ${idx+1} / ${total} · 정답 공개</p>
-    <div class="answer-banner ${ansClass}">
-      <span class="big">${q.ans}</span>
-      정답입니다
+    <div class="answer-banner">
+      이번 문제의 정답은 <strong>${q.ans}</strong>입니다.
     </div>
     <div class="exp-box" style="margin-bottom:1rem;">${escapeHtml(q.exp)}</div>
     <div class="stat-row">
@@ -615,10 +619,6 @@ function viewAdminFinal(){
     if(b.score !== a.score) return b.score - a.score;
     return a.joinedAt - b.joinedAt;
   });
-  const sorted = App.participants.slice().sort((a,b)=>{
-    if(b.score !== a.score) return b.score - a.score;
-    return a.joinedAt - b.joinedAt;
-  });
   const survivorListHtml = sortedSurvivors.length
     ? sortedSurvivors.map((p,i)=>`
       <li>
@@ -626,11 +626,6 @@ function viewAdminFinal(){
         <span>🏆</span>
       </li>`).join("")
     : `<li class="empty-note" style="border-bottom:none;">탈락하지 않은 참가자가 없습니다</li>`;
-  const rankHtml = sorted.length ? sorted.map((p,i)=>`
-    <li>
-      <span><span class="rnum">${i+1}</span>${escapeHtml(p.name)} <span class="pid">(${escapeHtml(p.employeeId)})</span></span>
-      <span>${p.score}점 ${p.alive?'🏆':''}</span>
-    </li>`).join("") : `<li class="empty-note" style="border-bottom:none;">참가자가 없습니다</li>`;
   return `
   <div>
     <div class="topbar"><span>관리자 모드</span><span>방 코드 ${App.room}</span></div>
@@ -640,12 +635,7 @@ function viewAdminFinal(){
       <ul class="rank-list">${survivorListHtml}</ul>
     </div>
     <button class="btn btn-gold" id="btn-export-excel">생존자 명단 엑셀로 내보내기</button>
-
-    <h2 style="margin-top:1.6rem;">전체 참가자 순위</h2>
-    <div class="card">
-      <ul class="rank-list">${rankHtml}</ul>
-    </div>
-    <button class="btn btn-secondary" id="btn-new-game">새 게임 만들기</button>
+    <button class="btn btn-secondary" id="btn-new-game" style="margin-top:0.6rem;">새 게임 만들기</button>
   </div>`;
 }
 
@@ -753,7 +743,6 @@ function viewPAnswer(){
   const idx = App.qIndex;
   const total = App.state.totalQuestions;
   const q = QUESTIONS[App.state.order[idx]];
-  const ansClass = q.ans === "O" ? "o" : "x";
   const rec = App.myRecord;
   const wasCorrect = rec && rec.answers && rec.answers[idx] ? rec.answers[idx].correct : false;
   const noAnswer = !(rec && rec.answers && rec.answers[idx]);
@@ -770,9 +759,8 @@ function viewPAnswer(){
   return `
   <div>
     <p class="qnum">문제 ${idx+1} / ${total} · 정답 공개</p>
-    <div class="answer-banner ${ansClass}">
-      <p style="margin:0 0 0.3rem; font-size:0.78rem; font-weight:700; opacity:0.75;">이번 문제의 정답</p>
-      <span class="big">${q.ans}</span>
+    <div class="answer-banner">
+      이번 문제의 정답은 <strong>${q.ans}</strong>입니다.
     </div>
     <div style="text-align:center;">${tagHtml}</div>
     <div class="exp-box">${escapeHtml(q.exp)}</div>
@@ -977,12 +965,8 @@ async function refreshParticipants(){
 
 function updateLobbyList(){
   const countEl = document.getElementById("p-count");
-  const listEl = document.getElementById("p-list");
-  if(!countEl || !listEl) return;
+  if(!countEl) return;
   countEl.textContent = App.participants.length;
-  listEl.innerHTML = App.participants.length
-    ? App.participants.map(p=>`<li><span class="pname">${escapeHtml(p.name)}</span><span class="pid">${escapeHtml(p.employeeId)}</span></li>`).join("")
-    : `<li class="empty-note">아직 입장한 참가자가 없습니다</li>`;
 }
 
 async function onStartQuiz(){
@@ -1068,8 +1052,7 @@ function onExportSurvivorsExcel(){
     alert("탈락하지 않은 참가자가 없어 내보낼 명단이 없습니다.");
     return;
   }
-  const rows = survivors.map((p, i) => ({
-    "순위": i + 1,
+  const rows = survivors.map((p) => ({
     "이름": p.name,
     "사번": p.employeeId,
     "점수": p.score
