@@ -615,6 +615,7 @@ function viewAdminAnswer(){
 /* ================= ADMIN: FINAL ================= */
 function viewAdminFinal(){
   const survivors = App.participants.filter(p => p.alive);
+  const totalCount = App.participants.length;
   const sortedSurvivors = survivors.slice().sort((a,b)=>{
     if(b.score !== a.score) return b.score - a.score;
     return a.joinedAt - b.joinedAt;
@@ -623,18 +624,19 @@ function viewAdminFinal(){
     ? sortedSurvivors.map((p,i)=>`
       <li>
         <span><span class="rnum">${i+1}</span>${escapeHtml(p.name)} <span class="pid">(${escapeHtml(p.employeeId)})</span></span>
-        <span>🏆</span>
+        <span>🎁</span>
       </li>`).join("")
-    : `<li class="empty-note" style="border-bottom:none;">탈락하지 않은 참가자가 없습니다</li>`;
+    : `<li class="empty-note" style="border-bottom:none;">상품 당첨자가 없습니다</li>`;
   return `
   <div>
     <div class="topbar"><span>관리자 모드</span><span>방 코드 ${App.room}</span></div>
     <p class="eyebrow">최종 결과</p>
-    <h2>탈락하지 않은 참가자 ${survivors.length}명</h2>
+    <h2 style="margin-bottom:0.2rem;">🎁 상품 당첨자 ${survivors.length}명</h2>
+    <p style="color:var(--c-muted); font-size:0.85rem; margin:0 0 1.2rem;">전체 참여자 ${totalCount}명 중 선정</p>
     <div class="card">
       <ul class="rank-list">${survivorListHtml}</ul>
     </div>
-    <button class="btn btn-gold" id="btn-export-excel">생존자 명단 엑셀로 내보내기</button>
+    <button class="btn btn-gold" id="btn-export-excel">상품 당첨자 명단 엑셀로 내보내기</button>
     <button class="btn btn-secondary" id="btn-new-game" style="margin-top:0.6rem;">새 게임 만들기</button>
   </div>`;
 }
@@ -1041,26 +1043,30 @@ function onExportSurvivorsExcel(){
     alert("엑셀 내보내기 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하고 다시 시도해주세요.");
     return;
   }
-  const survivors = App.participants
+  const totalCount = App.participants.length;
+  const winners = App.participants
     .filter(p => p.alive)
     .slice()
     .sort((a,b)=>{
       if(b.score !== a.score) return b.score - a.score;
       return a.joinedAt - b.joinedAt;
     });
-  if(survivors.length === 0){
-    alert("탈락하지 않은 참가자가 없어 내보낼 명단이 없습니다.");
+  if(winners.length === 0){
+    alert("상품 당첨자가 없어 내보낼 명단이 없습니다.");
     return;
   }
-  const rows = survivors.map((p) => ({
-    "이름": p.name,
-    "사번": p.employeeId,
-    "점수": p.score
-  }));
-  const worksheet = XLSX.utils.json_to_sheet(rows);
+  const aoa = [
+    ["총 참여자 수", totalCount],
+    ["상품 당첨자 수", winners.length],
+    [],
+    ["이름", "사번", "점수"]
+  ];
+  winners.forEach(p => aoa.push([p.name, p.employeeId, p.score]));
+
+  const worksheet = XLSX.utils.aoa_to_sheet(aoa);
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "생존자명단");
-  const filename = `OX퀴즈_생존자명단_방${App.room}.xlsx`;
+  XLSX.utils.book_append_sheet(workbook, worksheet, "당첨자명단");
+  const filename = `OX퀴즈_당첨자명단_방${App.room}.xlsx`;
   XLSX.writeFile(workbook, filename);
 }
 
