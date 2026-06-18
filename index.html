@@ -742,16 +742,17 @@ function viewPAnswer(){
   if(noAnswer){
     tagHtml = `<span class="result-tag wrong">⏱ 답변을 제출하지 않아 탈락했습니다</span>`;
   } else if(wasCorrect){
-    tagHtml = `<span class="result-tag correct">✅ 정답입니다! 계속 진행합니다</span>`;
+    tagHtml = `<span class="result-tag correct">🎉 내가 고른 답이 맞았어요! 계속 진행합니다</span>`;
   } else {
-    tagHtml = `<span class="result-tag wrong">❌ 오답입니다. 탈락했습니다</span>`;
+    tagHtml = `<span class="result-tag wrong">💥 내가 고른 답이 틀렸어요. 탈락했습니다</span>`;
   }
 
   return `
   <div>
     <p class="qnum">문제 ${idx+1} / ${total} · 정답 공개</p>
     <div class="answer-banner ${ansClass}">
-      <span class="big">${q.ans}</span>정답입니다
+      <p style="margin:0 0 0.3rem; font-size:0.78rem; font-weight:700; opacity:0.75;">이번 문제의 정답</p>
+      <span class="big">${q.ans}</span>
     </div>
     <div style="text-align:center;">${tagHtml}</div>
     <div class="exp-box">${escapeHtml(q.exp)}</div>
