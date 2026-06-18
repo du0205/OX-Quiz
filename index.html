@@ -448,6 +448,7 @@ const App = {
   tickTimer: null,
   storageOk: null,    // null = checking, true/false = checked
   baseUrl: "",         // base URL used to build the participant join link / QR
+  isRestart: false,   // true면 기존 방/참가자를 재사용해서 새 게임을 시작
 };
 
 function detectBaseUrl(){
@@ -540,9 +541,10 @@ function viewAdminSetup(){
     <p class="eyebrow">관리자 설정</p>
     <h2>몇 문제로 진행할까요?</h2>
     <p class="lead">총 ${QUESTIONS.length}개 문제 중 진행할 문제 수를 선택하세요.</p>
+    ${App.isRestart ? `<div class="card" style="background:var(--c-green-soft);"><p style="margin:0; font-weight:700; color:var(--c-green-deep);">🔁 기존 참가자 ${App.participants.length}명과 함께 같은 방 코드(${App.room})로 새 게임을 시작합니다. 다시 입장할 필요 없어요.</p></div>` : ""}
     ${storageWarningBanner()}
     <div class="count-grid">${optsHtml}</div>
-    <button class="btn btn-primary" id="btn-create-room" ${canCreate?'':'disabled'}>게임방 만들기</button>
+    <button class="btn btn-primary" id="btn-create-room" ${canCreate?'':'disabled'}>${App.isRestart ? "같은 인원으로 새 게임 시작" : "게임방 만들기"}</button>
     <p id="create-error" style="color:var(--c-red); font-size:0.85rem; text-align:center; min-height:1.2rem; margin-top:0.5rem;"></p>
     <button class="btn btn-ghost" id="btn-back-home" style="margin-top:0.3rem;">처음으로</button>
   </div>`;
@@ -848,7 +850,11 @@ function afterRender(){
         b.onclick = () => { App.setupCount = Number(b.dataset.count); render(); };
       });
       document.getElementById("btn-create-room").onclick = onCreateRoom;
-      document.getElementById("btn-back-home").onclick = () => { App.screen="home"; render(); };
+      document.getElementById("btn-back-home").onclick = () => {
+        App.isRestart = false; App.room = null; App.state = null;
+        App.participants = []; App.setupCount = null;
+        App.screen = "home"; render();
+      };
       break;
 
     case "admin-lobby":
@@ -887,8 +893,10 @@ function afterRender(){
 
     case "admin-final":
       document.getElementById("btn-new-game").onclick = () => {
-        App.room=null; App.state=null; App.participants=[]; App.setupCount=null;
-        App.screen="admin-setup"; render();
+        App.isRestart = true;
+        App.setupCount = null;
+        App.screen = "admin-setup";
+        render();
       };
       document.getElementById("btn-export-excel").onclick = onExportSurvivorsExcel;
       break;
@@ -951,7 +959,8 @@ async function onCreateRoom(){
   const errEl = document.getElementById("create-error");
   if(errEl) errEl.textContent = "";
 
-  const room = makeRoomCode();
+  const isRestart = !!(App.isRestart && App.room);
+  const room = isRestart ? App.room : makeRoomCode();
   const order = shuffle([...Array(QUESTIONS.length).keys()]).slice(0, App.setupCount);
   const state = {
     phase: "lobby",
@@ -967,10 +976,24 @@ async function onCreateRoom(){
     if(errEl) errEl.textContent = msg; else alert(msg);
     return;
   }
+
+  if(isRestart){
+    const existingParticipants = await refreshParticipants();
+    for(const p of existingParticipants){
+      p.alive = true;
+      p.score = 0;
+      p.answers = {};
+      delete p.prize;
+      const key = p.key || sanitizeId(p.employeeId);
+      await storageSet(`room:${room}:p:${key}`, p);
+    }
+  }
+
   App.role = "admin";
   App.room = room;
   App.state = state;
-  App.baseUrl = detectBaseUrl();
+  App.baseUrl = App.baseUrl || detectBaseUrl();
+  App.isRestart = false;
   App.screen = "admin-lobby";
   render();
 }
@@ -1064,18 +1087,27 @@ async function onEndQuizEarly(){
 }
 
 async function assignPrizes(){
-  if(App.state.prizesAssigned) return;
   const winners = App.participants.filter(p => p.alive);
-  if(winners.length > 0){
-    const pool = shuffle(buildPrizePool());
-    for(let i=0;i<winners.length;i++){
-      const prize = i < pool.length ? pool[i] : null;
-      winners[i].prize = prize;
-      const key = winners[i].key || sanitizeId(winners[i].employeeId);
-      await storageSet(`room:${App.room}:p:${key}`, winners[i]);
-    }
+  if(winners.length === 0) return;
+
+  const alreadyHave = winners.filter(p => p.prize);
+  const needPrize = winners.filter(p => !p.prize);
+  if(needPrize.length === 0) return;
+
+  // 전체 경품 풀에서, 이미 배정된 만큼을 빼서 "남은 수량"만 계산한다.
+  const remainingPool = buildPrizePool();
+  alreadyHave.forEach(p => {
+    const idx = remainingPool.indexOf(p.prize);
+    if(idx !== -1) remainingPool.splice(idx, 1);
+  });
+  const shuffledRemaining = shuffle(remainingPool);
+
+  for(let i=0;i<needPrize.length;i++){
+    const prize = i < shuffledRemaining.length ? shuffledRemaining[i] : null;
+    needPrize[i].prize = prize;
+    const key = needPrize[i].key || sanitizeId(needPrize[i].employeeId);
+    await storageSet(`room:${App.room}:p:${key}`, needPrize[i]);
   }
-  App.state.prizesAssigned = true;
 }
 
 function onExportSurvivorsExcel(){
@@ -1220,7 +1252,7 @@ async function onSubmitAnswer(){
 /* ================= POLLING LOOP (drives sync + transitions) ================= */
 async function pollTick(){
   if(!App.room) return;
-  const liveScreens = ["admin-lobby","admin-question","admin-answer","wait","p-question","p-answer"];
+  const liveScreens = ["admin-lobby","admin-question","admin-answer","wait","p-question","p-answer","p-final"];
   if(!liveScreens.includes(App.screen)) return;
 
   const remote = await storageGet(`room:${App.room}:state`);
@@ -1284,6 +1316,25 @@ async function handleParticipantSync(remote){
     } else if(remote.phase === "finished"){
       App.myRecord = ensureRecordShape(await storageGet(myKey) || App.myRecord);
       App.screen = "p-final";
+      render();
+    }
+    return;
+  }
+
+  if(App.screen === "p-final"){
+    // 관리자가 같은 인원으로 새 게임을 시작하면 phase가 lobby 또는 question으로 다시 바뀐다.
+    if(remote.phase === "lobby"){
+      App.myRecord = ensureRecordShape(await storageGet(myKey) || App.myRecord);
+      App.localAnswered = false;
+      App.localChoice = null;
+      App.screen = "wait";
+      render();
+    } else if(remote.phase === "question"){
+      App.qIndex = remote.currentIndex;
+      App.myRecord = ensureRecordShape(await storageGet(myKey) || App.myRecord);
+      App.localAnswered = false;
+      App.localChoice = null;
+      App.screen = "p-question";
       render();
     }
     return;
